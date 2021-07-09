@@ -47,6 +47,8 @@ import androidx.annotation.WorkerThread;
 import androidx.core.util.Pair;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -212,20 +214,34 @@ public class ScreenCaptureService extends Service {
 //                    }
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-                    RequestBody formbody=new FormBody.Builder().add("ByteArray", Arrays.toString(bitmapdata)).build();
+                    MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                    multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
+                    RequestBody postBodyImage = multipartBodyBuilder.build();
+
+//                    RequestBody formbody=new FormBody.Builder().add("img", Arrays.toString(bitmapdata)).build();
                     OkHttpClient okHttpClient=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.1.13:5000/").post(formbody).build();
+                    Request request=new Request.Builder().url("http://192.168.1.13:8000/classify").post(postBodyImage).build();
                     okHttpClient.newCall(request).enqueue(new Callback() {
                        @Override
                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
                           Log.i("Unsuccessful","Unsuccessful");
+                          e.printStackTrace();
 
                       }
                       @Override
                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                            if(response.isSuccessful())
                            {
-                               if(Objects.requireNonNull(response.body()).string().equals("Blackout"))
+                               int responecode=2;
+                               String responseData = response.body().string();
+                               try {
+                                   JSONObject jsonObject = new JSONObject(responseData);
+                                   responecode=jsonObject.getInt("block");
+                                   Log.i("Block", String.valueOf(responecode));
+                               } catch (JSONException e) {
+                                   e.printStackTrace();
+                               }
+                               if(responecode==1)
                                     {
                                        if(safe)
                                        {
@@ -233,13 +249,16 @@ public class ScreenCaptureService extends Service {
                                            m1.obj="Blackout";
                                            handler.sendMessage(m1);
 
+
                                        }
 
                                      }
 
-                                else {
+                                else  {
                                     if(!safe)
                                     {
+
+
                                         Message m1=Message.obtain();
                                         m1.obj="Safe";
                                         handler.sendMessage(m1);
