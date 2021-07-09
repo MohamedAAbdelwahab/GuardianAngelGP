@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,6 +30,31 @@ public class HomeActivity extends Activity {
                 Context wrapper = new ContextThemeWrapper(HomeActivity.this, R.style.MyPopupOtherStyle);
                 PopupMenu men = new PopupMenu(wrapper,v);
                 men.inflate(R.menu.settings_menu);
+                men.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getTitle().toString()){
+                            case "Change Email":
+                                Intent chngmail = new Intent(getApplicationContext(),changeEmailPopup.class);
+                                startActivity(chngmail);
+                                break;
+                            case "Change Password":
+                                Intent chngpwd = new Intent(getApplicationContext(),changePwdPopup.class);
+                                startActivity(chngpwd);
+                                break;
+                            case "Receive Emails":
+                                Intent entrpwd = new Intent(getApplicationContext(),enterPwdPopup.class);
+                                startActivity(entrpwd);
+                                break;
+                            case "Language":
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+
+                });
                 men.show();
             }
         });
