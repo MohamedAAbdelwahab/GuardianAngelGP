@@ -212,9 +212,9 @@ public class ScreenCaptureService extends Service {
 //                    }
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-                    RequestBody formbody=new FormBody.Builder().add("ByteArray", Arrays.toString(bitmapdata)).add("width", String.valueOf(mWidth)).add("height",String.valueOf(mHeight)).add("extension","JPEG").build();
+                    RequestBody formbody=new FormBody.Builder().add("ByteArray", Arrays.toString(bitmapdata)).build();
                     OkHttpClient okHttpClient=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.1.103:5000/").post(formbody).build();
+                    Request request=new Request.Builder().url("http://192.168.1.13:5000/").post(formbody).build();
                     okHttpClient.newCall(request).enqueue(new Callback() {
                        @Override
                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
