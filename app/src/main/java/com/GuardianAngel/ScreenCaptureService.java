@@ -216,25 +216,24 @@ public class ScreenCaptureService extends Service {
                     OkHttpClient okHttpClient=new OkHttpClient();
                     Request request=new Request.Builder().url("http://192.168.1.103:5000/").post(formbody).build();
                     okHttpClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                            Log.i("Unsuccessful","Unsuccessful");
+                       @Override
+                       public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                          Log.i("Unsuccessful","Unsuccessful");
 
-                        }
+                      }
+                      @Override
+                       public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                           if(response.isSuccessful())
+                           {
+                               if(Objects.requireNonNull(response.body()).string().equals("Blackout"))
+                                    {
+                                       if(safe)
+                                       {
+                                           Message m1=Message.obtain();
+                                           m1.obj="Blackout";
+                                           handler.sendMessage(m1);
 
-                        @Override
-                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                            if(response.isSuccessful())
-                            {
-                                if(Objects.requireNonNull(response.body()).string().equals("Blackout"))
-                                     {
-                                         if(safe)
-                                         {
-                                             Message m1=Message.obtain();
-                                             m1.obj="Blackout";
-                                             handler.sendMessage(m1);
-
-                                         }
+                                       }
 
                                      }
 
@@ -254,6 +253,14 @@ public class ScreenCaptureService extends Service {
 
                         }
                     });
+
+
+
+
+
+
+
+
 
 //                    new Thread(new Runnable() {
 //                        @Override
