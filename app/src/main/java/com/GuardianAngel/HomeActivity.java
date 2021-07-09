@@ -11,12 +11,31 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 public class HomeActivity extends Activity {
-    Button Cap_Activity;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.home);
+        ImageView v = findViewById(R.id.stn_btn);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu men = new PopupMenu(HomeActivity.this,v);
+                men.inflate(R.menu.settings_menu);
+                men.show();
+            }
+        });
+    }
+    private void showMenu(View v){
+
+
+    }
+    /*Button Cap_Activity;
     Button Change_Settings;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -86,6 +105,5 @@ public class HomeActivity extends Activity {
             }
         }
     }
-
-
+    */
 }

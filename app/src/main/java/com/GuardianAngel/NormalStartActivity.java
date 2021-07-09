@@ -28,8 +28,8 @@ public class NormalStartActivity extends Activity {
         setContentView(R.layout.normal_start_activity);
         context=this;
         file=new FileReader(this);
-        submit=findViewById(R.id.button6);
-        password=findViewById(R.id.editTextTextPassword);
+        submit=findViewById(R.id.log_btn);
+        password=findViewById(R.id.password_box);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

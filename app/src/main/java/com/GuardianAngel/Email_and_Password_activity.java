@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -16,6 +17,7 @@ import com.GuardianAngel.FileSystemModule.FileReader;
 public class Email_and_Password_activity extends Activity {
     EditText EditTextemail;
     EditText EditTextpassword;
+    EditText EditTextconfirm;
     Button registerbtn;
     Context context=null;
     private static final String PasswordFileName="PasswordFile.txt";
@@ -26,9 +28,10 @@ public class Email_and_Password_activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        EditTextemail=findViewById(R.id.Email);
-        EditTextpassword=findViewById(R.id.passwrd);
-        registerbtn=findViewById(R.id.Register);
+        EditTextemail=findViewById(R.id.Email_box);
+        EditTextpassword=findViewById(R.id.Password_box);
+        EditTextconfirm=findViewById(R.id.conf_box);
+        registerbtn=findViewById(R.id.reg_btn);
         file=new FileReader(this);
         if(file.isExists(this))
         {
@@ -41,7 +44,7 @@ public class Email_and_Password_activity extends Activity {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
             context=this;
-            if(TextUtils.isEmpty(EditTextemail.getText()) || TextUtils.isEmpty(EditTextpassword.getText()) )
+            /*if(TextUtils.isEmpty(EditTextemail.getText()) || TextUtils.isEmpty(EditTextpassword.getText()) )
             {
                 if( TextUtils.isEmpty(EditTextemail.getText())){
                     EditTextemail.setError( "Email is required!" );
@@ -49,11 +52,15 @@ public class Email_and_Password_activity extends Activity {
                 if (TextUtils.isEmpty(EditTextpassword.getText())){
                     EditTextpassword.setError( "password is required!" );
                 }
-            }
+                if (TextUtils.isEmpty(EditTextconfirm.getText())){
+                    EditTextconfirm.setError( "password confirmation required!" );
+                }
+            }*/
             registerbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    String password = EditTextpassword.getText().toString();
+                    String confirmation = EditTextconfirm.getText().toString();
                     if(TextUtils.isEmpty(EditTextemail.getText()) || TextUtils.isEmpty(EditTextpassword.getText()) )
                     {
                         if( TextUtils.isEmpty(EditTextemail.getText())){
@@ -62,6 +69,13 @@ public class Email_and_Password_activity extends Activity {
                         if (TextUtils.isEmpty(EditTextpassword.getText())){
                             EditTextpassword.setError( "password is required!" );
                         }
+                        if (TextUtils.isEmpty(EditTextconfirm.getText())){
+                            EditTextconfirm.setError( "password confirmation required!" );
+                        }
+
+                    }else if(!password.equals(confirmation)){
+                        EditTextconfirm.setError( "password doesn't match!" );
+
                     }else {
                         String Password=EditTextpassword.getText().toString();
                         file.writeFile(context,Password,PasswordFileName);
