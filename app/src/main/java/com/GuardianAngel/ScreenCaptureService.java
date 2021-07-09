@@ -38,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -217,61 +218,80 @@ public class ScreenCaptureService extends Service {
                     MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
                     multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
                     RequestBody postBodyImage = multipartBodyBuilder.build();
+                    if(safe)
+                    {
+                        OkHttpClient okHttpClient=new OkHttpClient();
+                        Request request=new Request.Builder().url("http://192.168.1.13:8000/classify").post(postBodyImage).build();
+                        okHttpClient.newCall(request).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                Log.i("Unsuccessful","Unsuccessful");
+                                e.printStackTrace();
 
-//                    RequestBody formbody=new FormBody.Builder().add("img", Arrays.toString(bitmapdata)).build();
-                    OkHttpClient okHttpClient=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.1.13:8000/classify").post(postBodyImage).build();
-                    okHttpClient.newCall(request).enqueue(new Callback() {
-                       @Override
-                       public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                          Log.i("Unsuccessful","Unsuccessful");
-                          e.printStackTrace();
-
-                      }
-                      @Override
-                       public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                           if(response.isSuccessful())
-                           {
-                               int responecode=2;
-                               String responseData = response.body().string();
-                               try {
-                                   JSONObject jsonObject = new JSONObject(responseData);
-                                   responecode=jsonObject.getInt("block");
-                                   Log.i("Block", String.valueOf(responecode));
-                               } catch (JSONException e) {
-                                   e.printStackTrace();
-                               }
-                               if(responecode==1)
+                            }
+                            @Override
+                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                if(response.isSuccessful())
+                                {
+                                    int responecode=2;
+                                    String responseData = response.body().string();
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(responseData);
+                                        responecode=jsonObject.getInt("block");
+                                        Log.i("Block", String.valueOf(responecode));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if(responecode==1)
                                     {
-                                       if(safe)
-                                       {
-                                           Message m1=Message.obtain();
-                                           m1.obj="Blackout";
-                                           handler.sendMessage(m1);
+                                        if(safe)
+                                        {
+                                            Message m1=Message.obtain();
+                                            m1.obj="Blackout";
+                                            handler.sendMessage(m1);
 
 
-                                       }
+                                        }
 
-                                     }
-
-                                else  {
-                                    if(!safe)
-                                    {
-
-
-                                        Message m1=Message.obtain();
-                                        m1.obj="Safe";
-                                        handler.sendMessage(m1);
                                     }
 
+                                    else  {
+                                        if(!safe)
+                                        {
 
+
+                                            Message m1=Message.obtain();
+                                            m1.obj="Safe";
+                                            handler.sendMessage(m1);
+                                        }
+
+
+
+                                    }
+                                    Log.i("successful","successful");
+                                }
+
+                            }
+                        });
+                        TimerTask task = new TimerTask() {
+                            public void run() {
+                                if(!safe)
+                                {
+                                    Message m1=Message.obtain();
+                                    m1.obj="Safe";
+                                    handler.sendMessage(m1);
 
                                 }
-                                Log.i("successful","successful");
-                            }
 
-                        }
-                    });
+                            }
+                        };
+                        Timer timer = new Timer("Timer");
+
+                        long delay = 3000L;
+                        timer.schedule(task, delay);
+                    }
+//                    RequestBody formbody=new FormBody.Builder().add("img", Arrays.toString(bitmapdata)).build();
+
 
 
 
