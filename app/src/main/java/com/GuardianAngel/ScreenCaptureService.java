@@ -221,7 +221,7 @@ public class ScreenCaptureService extends Service {
                     if(safe)
                     {
                         OkHttpClient okHttpClient=new OkHttpClient();
-                        Request request=new Request.Builder().url("http://192.168.1.13:8000/classify").post(postBodyImage).build();
+                        Request request=new Request.Builder().url("http://192.168.1.5:8000/classify").post(postBodyImage).build();
                         okHttpClient.newCall(request).enqueue(new Callback() {
                             @Override
                             public void onFailure(@NotNull Call call, @NotNull IOException e) {

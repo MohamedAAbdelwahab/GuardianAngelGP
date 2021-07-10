@@ -35,10 +35,9 @@ public class NormalStartActivity extends Activity {
             public void onClick(View view) {
                 String ExpectedPassword=password.getText().toString();
                 String ActualPassword=file.ReadFile(context,PasswordFileName);
-                Log.e("Actual",ActualPassword+ExpectedPassword);
                 if(ActualPassword.equals(ExpectedPassword))
                     {
-                        Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                        Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
                         startActivity(i);
                          finish();
                     }

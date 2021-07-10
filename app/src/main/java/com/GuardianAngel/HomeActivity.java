@@ -79,7 +79,8 @@ public class HomeActivity extends Activity {
                                 break;
                             case "Receive Emails":
                                 Intent entrpwd = new Intent(getApplicationContext(),enterPwdPopup.class);
-                                startActivity(entrpwd);
+                                startActivityForResult(entrpwd,200);
+
                                 break;
                             case "Language":
                                 break;
@@ -93,11 +94,13 @@ public class HomeActivity extends Activity {
                 men.show();
             }
         });
+
     }
     private void showMenu(View v){
 
 
     }
+
     /*Button Cap_Activity;
     Button Change_Settings;
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -158,6 +161,10 @@ public class HomeActivity extends Activity {
             }
             else {
                 requestOverlayPermission();
+            }
+        }else if(requestCode==200 && resultCode == RESULT_OK){
+            if(data.getIntExtra("SUCCESS",0) == 100){
+                Toast.makeText(this,"saba7",Toast.LENGTH_LONG).show();
             }
         }
         if (requestCode == REQUEST_CODE) {
