@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -62,6 +63,9 @@ public class changeEmailPopup extends Activity {
                         finish();
                     }else if(newmail.equals(mail)) {
                         Toast.makeText(getApplicationContext(),"new Email matches the old one",Toast.LENGTH_LONG).show();
+                        finish();
+                    }else if(!Patterns.EMAIL_ADDRESS.matcher(newEmail.getText()).matches()){
+                        Toast.makeText(getApplicationContext(),"enter a valid Email",Toast.LENGTH_LONG).show();
                         finish();
                     }else {
                         file.writeFile(context,newmail,EmailFileName);

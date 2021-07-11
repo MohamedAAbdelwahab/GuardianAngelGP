@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#999999"
+    android:background="@drawable/popup_radius"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
@@ -63,7 +63,7 @@
         android:layout_height="35dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/btn_bg"
+        android:background="@drawable/popbtn_bg"
         android:fontFamily="@font/open_sans_light"
         android:text="Submit"
         android:textAllCaps="false"

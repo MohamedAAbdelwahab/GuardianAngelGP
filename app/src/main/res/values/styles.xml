@@ -19,7 +19,9 @@
     </style>
     <style name = "AppTheme.popup" >
         <item name= "android:windowIsTranslucent">true</item>
+        <item name = "android:windowBackground" > @android:color/transparent</item>
         <item name= "android:windowCloseOnTouchOutside">true</item>
         <item name="android:popupBackground">@drawable/popup_radius</item>
+        <item name="android:alpha">0.975</item>
     </style>
 </resources>

@@ -11,13 +11,12 @@
         android:title="Change Password"
         android:visible="true" />
     <group android:checkableBehavior="all">
-    <item
-        android:id="@+id/app_bar_switch"
-        android:checkable="true"
-        android:checked="false"
-        android:title="Receive Emails"
-        android:visible="true"
-        app:actionLayout="@layout/switch_item" />
+        <item
+            android:id="@+id/app_bar_switch"
+            android:checkable="true"
+            android:title="Receive Emails"
+            android:visible="true"
+            app:actionLayout="@layout/switch_item" />
     </group>
     <item
         android:id="@+id/lng"

@@ -414,7 +414,7 @@ public class ScreenCaptureService extends Service {
     private void sendRequest(RequestBody postBodyImage)
     {
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url("http://192.168.1.103:8000/classify").post(postBodyImage).build();
+        Request request = new Request.Builder().url("http://192.168.1.5:8000/classify").post(postBodyImage).build();
         send=false;
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override

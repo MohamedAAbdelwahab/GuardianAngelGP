@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -73,7 +74,10 @@ public class Email_and_Password_activity extends Activity {
                             EditTextconfirm.setError( "password confirmation required!" );
                         }
 
-                    }else if(!password.equals(confirmation)){
+                    }else if(!Patterns.EMAIL_ADDRESS.matcher(EditTextemail.getText()).matches()){
+                        EditTextemail.setError( "enter a valid email" );
+                    }
+                    else if(!password.equals(confirmation)){
                         EditTextconfirm.setError( "password doesn't match!" );
 
                     }else {

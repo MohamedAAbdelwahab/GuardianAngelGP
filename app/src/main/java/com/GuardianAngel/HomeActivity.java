@@ -27,8 +27,8 @@ import androidx.appcompat.widget.SwitchCompat;
 
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    private MenuItem item;
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -37,7 +37,7 @@ public class HomeActivity extends Activity {
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
         SwitchCompat simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
-        SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
+        final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
         simpleSwitch.setChecked(pref.getBoolean("isChecked", false));
 
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -65,6 +65,8 @@ public class HomeActivity extends Activity {
                 Context wrapper = new ContextThemeWrapper(HomeActivity.this, R.style.MyPopupOtherStyle);
                 PopupMenu men = new PopupMenu(wrapper,v);
                 men.inflate(R.menu.settings_menu);
+                item = men.getMenu().findItem(R.id.app_bar_switch);
+                item.setChecked(pref.getBoolean("Checked", true));
                 men.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -78,9 +80,10 @@ public class HomeActivity extends Activity {
                                 startActivity(chngpwd);
                                 break;
                             case "Receive Emails":
-                                Intent entrpwd = new Intent(getApplicationContext(),enterPwdPopup.class);
-                                startActivityForResult(entrpwd,200);
-
+                                if(item.getItemId() == R.id.app_bar_switch){
+                                    Intent entrpwd = new Intent(getApplicationContext(),enterPwdPopup.class);
+                                    startActivityForResult(entrpwd,200);
+                                }
                                 break;
                             case "Language":
                                 break;
@@ -94,10 +97,6 @@ public class HomeActivity extends Activity {
                 men.show();
             }
         });
-
-    }
-    private void showMenu(View v){
-
 
     }
 
@@ -151,7 +150,7 @@ public class HomeActivity extends Activity {
     @Override
 
     */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==500) {
@@ -164,7 +163,10 @@ public class HomeActivity extends Activity {
             }
         }else if(requestCode==200 && resultCode == RESULT_OK){
             if(data.getIntExtra("SUCCESS",0) == 100){
-                Toast.makeText(this,"saba7",Toast.LENGTH_LONG).show();
+                item.setChecked(!item.isChecked());
+                SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
+                editor.putBoolean("Checked", item.isChecked());
+                editor.apply();
             }
         }
         if (requestCode == REQUEST_CODE) {
@@ -189,6 +191,7 @@ public class HomeActivity extends Activity {
         startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void stopProjection() {
         startService(com.GuardianAngel.ScreenCaptureService.getStopIntent(this));
     }
