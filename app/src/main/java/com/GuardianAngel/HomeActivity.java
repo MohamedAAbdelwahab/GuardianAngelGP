@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -28,6 +29,9 @@ import androidx.appcompat.widget.SwitchCompat;
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private MenuItem item;
+    private SwitchCompat simpleSwitch;
+    static Boolean isTouched = false;
+    @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,25 +40,34 @@ public class HomeActivity extends Activity {
 
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
-        SwitchCompat simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
+        simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
         final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
         simpleSwitch.setChecked(pref.getBoolean("isChecked", false));
+
+        simpleSwitch.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                isTouched = true;
+                return false;
+            }
+        });
 
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b)
+                if(b && isTouched)
                 {
+                    isTouched = false;
                     SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
                     editor.putBoolean("isChecked", b);
                     editor.apply();
                     startProjection();
                 }
-                else{
-                    SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
-                    editor.putBoolean("isChecked", b);
-                    editor.apply();
-                    stopProjection();
+                else if(!b && isTouched){
+                    isTouched = false;
+                    compoundButton.setChecked(true);
+                    Intent entrpwd = new Intent(getApplicationContext(),enterPwdPopup.class);
+                    startActivityForResult(entrpwd,300);
                 }
             }
         });
@@ -168,6 +181,12 @@ public class HomeActivity extends Activity {
                 editor.putBoolean("Checked", item.isChecked());
                 editor.apply();
             }
+        }else if(requestCode==300 && resultCode == RESULT_OK){
+            simpleSwitch.setChecked(false);
+            SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
+            editor.putBoolean("isChecked", false);
+            editor.apply();
+            stopProjection();
         }
         if (requestCode == REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
