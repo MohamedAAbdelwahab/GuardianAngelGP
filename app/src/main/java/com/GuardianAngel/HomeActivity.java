@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -22,15 +23,21 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
+
+import com.GuardianAngel.FileSystemModule.FileReader;
 
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private MenuItem item;
     private SwitchCompat simpleSwitch;
     static Boolean isTouched = false;
+    FileReader reader;
+    TextView ProtectiveDoneAllTime;
+    TextView ProtectiveDoneToday;
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +45,8 @@ public class HomeActivity extends Activity {
 
         setContentView(R.layout.home);
 
+        ProtectiveDoneAllTime=findViewById(R.id.textView18);
+        ProtectiveDoneToday=findViewById(R.id.textView16);
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
@@ -51,6 +60,10 @@ public class HomeActivity extends Activity {
                 return false;
             }
         });
+         reader=new FileReader(this);
+
+        ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
 
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -213,5 +226,14 @@ public class HomeActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void stopProjection() {
         startService(com.GuardianAngel.ScreenCaptureService.getStopIntent(this));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
+
     }
 }

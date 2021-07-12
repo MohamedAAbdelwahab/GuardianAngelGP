@@ -1,15 +1,22 @@
 package com.GuardianAngel.FileSystemModule;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class FileReader {
     private static final String PasswordFileName="PasswordFile.txt";
@@ -98,5 +105,82 @@ public class FileReader {
         return f.exists();
 
     }
+    public  void AppendToFile(Context context,String data,String FileName)  {
+        File file = new File(mStoreDir +   FileName);
+        FileWriter fr = null;
+        BufferedWriter br = null;
+        try {
+            // to append to file, you need to initialize FileWriter using below constructor
+            fr = new FileWriter(file, true);
+            br = new BufferedWriter(fr);
+            for (int i = 0; i < 1; i++) {
+                br.newLine();
+                // you can use write or append method
+                br.write(data);
+            }
 
-}
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+                fr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        }
+        public long  CountStatsAllTime(String fileName)
+        {
+            FileInputStream fis = null;
+
+            try {
+                fis = new FileInputStream(mStoreDir + fileName);
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            InputStreamReader isr = new InputStreamReader(fis);
+
+            long lines = 0;
+            try (BufferedReader reader = new BufferedReader(isr)) {
+                while (reader.readLine() != null) lines++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return lines;
+        }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public long  CountStatsOFDay(String fileName)
+    {
+        FileInputStream fis = null;
+
+        try {
+            fis = new FileInputStream(mStoreDir + fileName);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        InputStreamReader isr = new InputStreamReader(fis);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        LocalDateTime now = LocalDateTime.now();
+        Log.i("date",dtf.format(now));
+        String today=dtf.format(now);
+        long lines = 0;
+        try (BufferedReader reader = new BufferedReader(isr)) {
+            String Line=reader.readLine();
+            while (Line != null )
+            {
+                if(Line.contains(today))
+                lines++;
+                Line=reader.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
+    }
+    }
+
+

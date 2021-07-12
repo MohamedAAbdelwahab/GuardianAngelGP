@@ -53,6 +53,8 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.Pair;
 
+import com.GuardianAngel.FileSystemModule.FileReader;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -98,6 +100,7 @@ public class ScreenCaptureService extends Service {
     public int i=0;
     Date d1 = null;
     Date d2 = null;
+    FileReader reader;
     SimpleDateFormat format=new SimpleDateFormat("HH:mm:ss");
     private boolean send=true;
 
@@ -134,8 +137,17 @@ public class ScreenCaptureService extends Service {
                         {
                             wm.removeView(myView);
                             removeMessages(0);
-                            safe=true;
-                            send=true;
+                            TimerTask task = new TimerTask() {
+                                public void run() {
+                                    safe=true;
+                                    send=true;
+
+                                }
+                            };
+                            Timer timer = new Timer("Timer");
+
+                            long delay = 200L;
+                            timer.schedule(task, delay);
 
                         }
 
@@ -207,10 +219,9 @@ public class ScreenCaptureService extends Service {
                 //    f.createNewFile();
 
                     //Convert bitmap to byte array
-                    Bitmap bitmap2 = bitmap;
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bitmap2.compress(Bitmap.CompressFormat.JPEG, 25 /*ignored for PNG*/, bos);
-                    final byte[] bitmapdata = bos.toByteArray();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 25 /*ignored for PNG*/, bos);
+                     byte[] bitmapdata = bos.toByteArray();
 //                    Log.i("byte array", Arrays.toString(bitmapdata));
                     //TODO : wedit , height , exention,ByteArray
                     //write the bytes in file
@@ -414,7 +425,7 @@ public class ScreenCaptureService extends Service {
     private void sendRequest(RequestBody postBodyImage)
     {
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url("http://192.168.1.5:8000/classify").post(postBodyImage).build();
+        Request request = new Request.Builder().url("http://192.168.1.103:8000/classify").post(postBodyImage).build();
         send=false;
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -427,7 +438,6 @@ public class ScreenCaptureService extends Service {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    send=true;
                     Log.i("Response", "Response" + i);
                     i++;
                     int responecode = 0;
@@ -455,6 +465,14 @@ public class ScreenCaptureService extends Service {
 
                         long delay = 5000L;
                         timer.schedule(task, delay);
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+                        LocalDateTime now = LocalDateTime.now();
+
+                        reader.AppendToFile(getApplicationContext(),dtf.format(now),"statistics.txt");
+                    }
+                    else {
+                        send=true;
+
                     }
                     Log.i("successful", "successful");
                 }
@@ -483,6 +501,7 @@ public class ScreenCaptureService extends Service {
             Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
             stopSelf();
         }
+        reader=new FileReader(this);
 
         // start capture handling thread
         new Thread() {
