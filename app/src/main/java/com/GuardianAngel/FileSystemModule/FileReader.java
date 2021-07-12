@@ -131,10 +131,15 @@ public class FileReader {
         }
 
         }
-        public long  CountStatsAllTime(String fileName)
-        {
+        public long  CountStatsAllTime(String fileName) throws IOException {
             FileInputStream fis = null;
-
+            File myObj = new File(mStoreDir+fileName);
+            if(myObj.createNewFile())
+            {
+                System.out.println("File created: " + myObj.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
             try {
                 fis = new FileInputStream(mStoreDir + fileName);
             }

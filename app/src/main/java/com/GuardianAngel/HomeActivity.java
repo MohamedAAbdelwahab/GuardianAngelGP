@@ -30,6 +30,8 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.GuardianAngel.FileSystemModule.FileReader;
 
+import java.io.IOException;
+
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private MenuItem item;
@@ -62,7 +64,11 @@ public class HomeActivity extends Activity {
         });
          reader=new FileReader(this);
 
-        ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        try {
+            ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
 
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -232,7 +238,11 @@ public class HomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        try {
+            ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
 
     }
