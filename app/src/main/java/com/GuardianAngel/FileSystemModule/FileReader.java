@@ -3,6 +3,7 @@ package com.GuardianAngel.FileSystemModule;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.RequiresApi;
 
@@ -21,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 public class FileReader {
     private static final String PasswordFileName="PasswordFile.txt";
     private static final String EmailFileName="EmailFile.txt";
+    private static final String time="time.txt";
     private String mStoreDir;
     FileOutputStream fos=null;
 
@@ -157,6 +159,68 @@ public class FileReader {
             System.out.println(lines);
             return lines;
         }
+    public  void writeTime(Context context,String data1,String data2)  {
+
+        try {
+            fos = new FileOutputStream(mStoreDir +   time);
+            fos.write(data1.getBytes());
+            fos.write("\n".getBytes());
+            fos.write(data2.getBytes());
+            Log.e("hi","done"+context.getFilesDir()+time);
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fos!=null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+    public Pair<String,String> readTime(){
+        Log.e("hi","done");
+        FileInputStream fis = null;
+        File myObj = new File(mStoreDir+time);
+        /*try {
+            myObj.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        try {
+            fis = new FileInputStream(mStoreDir + time);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String today = null;
+        String Total = null;
+        InputStreamReader isr = new InputStreamReader(fis);
+        long lines = 0;
+        try (BufferedReader reader = new BufferedReader(isr)) {
+            String Line=reader.readLine();
+            while (Line != null )
+            {
+                if(!Line.trim().isEmpty() && today == null)
+                    today = Line;
+                else if(!Line.trim().isEmpty() && Total == null)
+                    Total = Line;
+                Line=reader.readLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(today == null)
+            today = "00:00:00";
+        if(Total == null)
+            Total = "00:00:00:00";
+        return new Pair<>(today,Total);
+    }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public long  CountStatsOFDay(String fileName)
     {
@@ -188,6 +252,7 @@ public class FileReader {
         System.out.println(lines);
         return lines;
     }
+
     }
 
 

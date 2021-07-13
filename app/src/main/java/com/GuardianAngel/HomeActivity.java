@@ -12,8 +12,10 @@ import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,6 +33,10 @@ import androidx.appcompat.widget.SwitchCompat;
 import com.GuardianAngel.FileSystemModule.FileReader;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
@@ -40,13 +46,54 @@ public class HomeActivity extends Activity {
     FileReader reader;
     TextView ProtectiveDoneAllTime;
     TextView ProtectiveDoneToday;
+    TextView timer1TextView;
+    TextView timer2TextView;
+    long previousTime;
+    Date startDate;
+    Date totalDate;
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+
+                timerHandler.postDelayed(this, 1000);
+                Date current_date = new Date();
+                Calendar cal1 = Calendar.getInstance();
+                Calendar cal2 = Calendar.getInstance();
+                cal1.setTime(startDate);
+                cal2.setTime(current_date);
+                if (!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                        cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR))){
+                    startDate = new Date();
+                    previousTime = 0;
+                }
+                long diff = current_date.getTime() - startDate.getTime();
+                diff += previousTime;
+                long total = totalDate.getTime() + diff;
+                long Days = diff / (24 * 60 * 60 * 1000);
+                long Hours = diff / (60 * 60 * 1000) % 24;
+                long Minutes = diff / (60 * 1000) % 60;
+                long Seconds = diff / 1000 % 60;
+                long tHours = total / (60 * 60 * 1000) % 24;
+                long tMinutes = total / (60 * 1000) % 60;
+                long tSeconds = total / 1000 % 60;
+                timer1TextView.setText(String.format("%02d:%02d:%02d", Hours,Minutes,Seconds));
+                timer2TextView.setText(String.format("%02d:%02d:%02d:%02d",Days,tHours,tMinutes,tSeconds));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
     @SuppressLint("ClickableViewAccessibility")
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.home);
-
+        reader=new FileReader(this);
+        timer1TextView = findViewById(R.id.textView19);
+        timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);
         ProtectiveDoneToday=findViewById(R.id.textView16);
         if(!(Settings.canDrawOverlays(this)))
@@ -54,7 +101,12 @@ public class HomeActivity extends Activity {
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
         final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
         simpleSwitch.setChecked(pref.getBoolean("isChecked", false));
-
+        if(simpleSwitch.isChecked()){
+            timerHandler.postDelayed(runnable, 0);
+        }
+        startDate = new Date(pref.getLong("startTime",(new Date()).getTime()));
+        previousTime = pref.getLong("previousTime",0);
+        readTime();
         simpleSwitch.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -62,7 +114,7 @@ public class HomeActivity extends Activity {
                 return false;
             }
         });
-         reader=new FileReader(this);
+
 
         try {
             ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
@@ -74,12 +126,15 @@ public class HomeActivity extends Activity {
         simpleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b && isTouched)
+                if(b)
                 {
-                    isTouched = false;
                     SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
                     editor.putBoolean("isChecked", b);
                     editor.apply();
+                    if(startDate == null){
+                        startDate = new Date();
+                    }
+                    timerHandler.postDelayed(runnable, 0);
                     startProjection();
                 }
                 else if(!b && isTouched){
@@ -132,56 +187,6 @@ public class HomeActivity extends Activity {
 
     }
 
-    /*Button Cap_Activity;
-    Button Change_Settings;
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
-//        String urlString = "chrome://flags/";
-//        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse((urlString)));
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.setPackage("com.android.chrome");
-//        try {
-//            startActivity(intent);
-//        } catch (ActivityNotFoundException ex) {
-//            // Chrome browser presumably not installed so allow user to choose instead
-//            intent.setPackage(null);
-//            startActivity(intent);
-//        }
-
-        Cap_Activity=findViewById(R.id.ScreenCapActivityBtn);
-        Change_Settings=findViewById(R.id.ChangeSettings);
-        Cap_Activity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), ScreenCaptureActivity.class);
-                startActivity(i);
-            }
-        });
-        Change_Settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(), ChangeSettings.class);
-                startActivity(i);
-            }
-        });
-
-
-
-        // start projection
-
-        // stop projection
-
-    }
-
-
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
-
-    */
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -204,6 +209,11 @@ public class HomeActivity extends Activity {
             simpleSwitch.setChecked(false);
             SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
             editor.putBoolean("isChecked", false);
+            timerHandler.removeCallbacks(runnable);
+            Date current_date = new Date();
+            previousTime += current_date.getTime() - startDate.getTime();
+            editor.putLong("previousTime", previousTime);
+            startDate = null;
             editor.apply();
             stopProjection();
         }
@@ -244,6 +254,36 @@ public class HomeActivity extends Activity {
             e.printStackTrace();
         }
         ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
+
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        timerHandler.removeCallbacks(runnable);
+        SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
+        if(simpleSwitch.isChecked()) {
+            editor.putLong("startTime", startDate.getTime());
+        }else{
+            editor.remove("startTime");
+        }
+        reader.writeTime(this,timer1TextView.getText().toString(),timer2TextView.getText().toString());
+        editor.apply();
+    }
+    public void readTime(){
+        Pair<String,String> time = reader.readTime();
+        timer1TextView.setText(time.first);
+        timer2TextView.setText(time.second);
+        String[] total = time.second.split(":");
+        int days  = Integer.parseInt(total[0]);
+        int hours  = Integer.parseInt(total[1]);
+        int minutes = Integer.parseInt(total[2]);
+        int seconds = Integer.parseInt(total[3]);
+        long t = seconds + 60 * minutes + 3600 * hours + 24 * 3600 *days;
+        totalDate = new Date(t);
 
     }
 }
