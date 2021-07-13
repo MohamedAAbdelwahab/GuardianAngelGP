@@ -134,12 +134,6 @@ public class FileReader {
         public long  CountStatsAllTime(String fileName) throws IOException {
             FileInputStream fis = null;
             File myObj = new File(mStoreDir+fileName);
-            if(myObj.createNewFile())
-            {
-                System.out.println("File created: " + myObj.getName());
-            } else {
-                System.out.println("File already exists.");
-            }
             try {
                 fis = new FileInputStream(mStoreDir + fileName);
             }
@@ -150,10 +144,17 @@ public class FileReader {
 
             long lines = 0;
             try (BufferedReader reader = new BufferedReader(isr)) {
-                while (reader.readLine() != null) lines++;
+                String Line=reader.readLine();
+                while (Line != null )
+                {
+                    if(!Line.trim().isEmpty())
+                        lines++;
+                    Line=reader.readLine();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println(lines);
             return lines;
         }
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -184,6 +185,7 @@ public class FileReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(lines);
         return lines;
     }
     }
