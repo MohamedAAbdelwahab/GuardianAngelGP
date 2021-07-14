@@ -569,6 +569,10 @@ public class ScreenCaptureService extends Service {
                 mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }
+        if(com.GuardianAngel.HomeActivity.startDate == null){
+            com.GuardianAngel.HomeActivity.startDate = new Date();
+        }
+        com.GuardianAngel.HomeActivity.timerHandler.postDelayed(com.GuardianAngel.HomeActivity.runnable, 0);
     }
 
     private void stopProjection() {

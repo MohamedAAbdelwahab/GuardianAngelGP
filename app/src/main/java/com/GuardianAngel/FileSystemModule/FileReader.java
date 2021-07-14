@@ -137,6 +137,11 @@ public class FileReader {
             FileInputStream fis = null;
             File myObj = new File(mStoreDir+fileName);
             try {
+                myObj.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
                 fis = new FileInputStream(mStoreDir + fileName);
             }
             catch (FileNotFoundException e) {
@@ -186,11 +191,11 @@ public class FileReader {
         Log.e("hi","done");
         FileInputStream fis = null;
         File myObj = new File(mStoreDir+time);
-        /*try {
+       try {
             myObj.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
         try {
             fis = new FileInputStream(mStoreDir + time);
         }
