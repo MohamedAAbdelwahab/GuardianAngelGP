@@ -46,14 +46,14 @@ public class HomeActivity extends Activity {
     FileReader reader;
     TextView ProtectiveDoneAllTime;
     TextView ProtectiveDoneToday;
-    TextView timer1TextView;
-    TextView timer2TextView;
-    long previousTime;
-    Date startDate;
-    Date totalDate;
+    static TextView timer1TextView;
+    static TextView timer2TextView;
+    public static long previousTime;
+    public static Date startDate;
+    public static  Date totalDate;
     //runs without a timer by reposting this handler at the end of the runnable
-    Handler timerHandler = new Handler();
-    Runnable runnable = new Runnable() {
+   static Handler timerHandler = new Handler();
+    static Runnable runnable = new Runnable() {
         @Override
         public void run() {
             try {
@@ -131,10 +131,10 @@ public class HomeActivity extends Activity {
                     SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
                     editor.putBoolean("isChecked", b);
                     editor.apply();
-                    if(startDate == null){
-                        startDate = new Date();
-                    }
-                    timerHandler.postDelayed(runnable, 0);
+//                    if(startDate == null){
+//                        startDate = new Date();
+//                    }
+//                    timerHandler.postDelayed(runnable, 0);
                     startProjection();
                 }
                 else if(!b && isTouched){
