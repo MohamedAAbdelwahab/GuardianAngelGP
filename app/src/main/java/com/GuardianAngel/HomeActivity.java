@@ -8,6 +8,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
@@ -54,6 +55,8 @@ public class HomeActivity extends Activity {
     public static Date startDate;
     public static  Date totalDate;
     public static  Date todDate;
+    private ImageView face;
+    private TextView faceText;
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -103,6 +106,8 @@ public class HomeActivity extends Activity {
         timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);
         ProtectiveDoneToday=findViewById(R.id.textView16);
+        face = findViewById(R.id.imageView10);
+        faceText = findViewById(R.id.textView10);
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
@@ -251,12 +256,34 @@ public class HomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        try {
-            ProtectiveDoneAllTime.setText(String.valueOf(reader.CountStatsAllTime("statistics.txt")));
+        long total = 0;
+        try{
+            total = reader.CountStatsAllTime("statistics.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ProtectiveDoneToday.setText(String.valueOf(reader.CountStatsOFDay("statistics.txt")));
+        long today = reader.CountStatsOFDay("statistics.txt");
+        ProtectiveDoneAllTime.setText(String.valueOf(total));
+        ProtectiveDoneToday.setText(String.valueOf(today));
+        long totalMinutes = (totalDate.getTime()+todDate.getTime())/(1000*60);
+        if (total != 0){
+            double score = totalMinutes/(double)total;
+            if(score > 60){
+                face.setImageResource(R.drawable.good);
+                faceText.setText("Good");
+                faceText.setTextColor(Color.parseColor("#00C48C"));
+            }else if(score > 10){
+                face.setImageResource(R.drawable.average);
+                faceText.setText("Average");
+                faceText.setTextColor(Color.parseColor("#FFCF5C"));
+            }else{
+                face.setImageResource(R.drawable.bad);
+                faceText.setText("Bad");
+                faceText.setTextColor(Color.parseColor("#FF647C"));
+            }
+        }
+
+
 
     }
     @Override

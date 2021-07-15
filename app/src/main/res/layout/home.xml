@@ -104,10 +104,11 @@
 
         <ImageView
             android:id="@+id/imageView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
             android:layout_marginTop="16dp"
-            android:src="@drawable/smile1"
+            android:alpha="0.6"
+            android:src="@drawable/good"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -117,9 +118,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:alpha="0.6"
             android:fontFamily="@font/open_sans_bold"
-            android:text="good"
-            android:textColor="#5ed1b0"
+            android:text="Good"
+            android:textColor="#00C48C"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
