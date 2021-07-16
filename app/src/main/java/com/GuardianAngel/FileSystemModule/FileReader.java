@@ -16,8 +16,12 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 public class FileReader {
     private static final String PasswordFileName="PasswordFile.txt";
@@ -187,8 +191,7 @@ public class FileReader {
         }
 
     }
-    public Pair<String,String> readTime(){
-        Log.e("hi","done");
+    public Pair<Long,Long> readTime(){
         FileInputStream fis = null;
         File myObj = new File(mStoreDir+time);
        try {
@@ -202,29 +205,49 @@ public class FileReader {
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         String today = null;
-        String Total = null;
+        long Today = 0;
+        long Total = -1;
         InputStreamReader isr = new InputStreamReader(fis);
-        long lines = 0;
         try (BufferedReader reader = new BufferedReader(isr)) {
             String Line=reader.readLine();
             while (Line != null )
             {
                 if(!Line.trim().isEmpty() && today == null)
                     today = Line;
-                else if(!Line.trim().isEmpty() && Total == null)
-                    Total = Line;
+                else if(!Line.trim().isEmpty() && Total == -1)
+                    Total = Integer.parseInt(Line);
                 Line=reader.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(today == null)
-            today = "00:00:00";
-        if(Total == null)
-            Total = "00:00:00:00";
-        return new Pair<>(today,Total);
+        if(today != null){
+            String[] t = today.split(" ");
+            Today = Integer.parseInt(t[0]);
+            String date = t[1];
+            Date day = null;
+            try {
+                day = new SimpleDateFormat("yyyy/MM/dd").parse(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            Calendar cal1 = Calendar.getInstance();
+            Calendar cal2 = Calendar.getInstance();
+            cal1.setTime(day);
+            cal2.setTime(new Date());
+            if (!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                    cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR))){
+                Total+=Today;
+                Today = 0;
+            }
+        }else {
+            Today = 0;
+        }
+        if(Total == -1)
+            Total = 0;
+
+        return new Pair<>(Today,Total);
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public long  CountStatsOFDay(String fileName)

@@ -35,6 +35,8 @@ import com.GuardianAngel.FileSystemModule.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -51,8 +53,8 @@ public class HomeActivity extends Activity {
     public static long previousTime;
     public static Date startDate;
     public static  Date totalDate;
-    //runs without a timer by reposting this handler at the end of the runnable
-   static Handler timerHandler = new Handler();
+    public static  Date todDate;
+    static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -66,13 +68,17 @@ public class HomeActivity extends Activity {
                 cal2.setTime(current_date);
                 if (!(cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
                         cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR))){
+                    long diff = current_date.getTime() - startDate.getTime();
+                    diff += previousTime;
+                    totalDate = new Date(diff+totalDate.getTime());
                     startDate = new Date();
                     previousTime = 0;
                 }
                 long diff = current_date.getTime() - startDate.getTime();
                 diff += previousTime;
+                todDate = new Date(diff);
                 long total = totalDate.getTime() + diff;
-                long Days = diff / (24 * 60 * 60 * 1000);
+                long Days = total / (24 * 60 * 60 * 1000);
                 long Hours = diff / (60 * 60 * 1000) % 24;
                 long Minutes = diff / (60 * 1000) % 60;
                 long Seconds = diff / 1000 % 60;
@@ -81,7 +87,8 @@ public class HomeActivity extends Activity {
                 long tSeconds = total / 1000 % 60;
                 timer1TextView.setText(String.format("%02d:%02d:%02d", Hours,Minutes,Seconds));
                 timer2TextView.setText(String.format("%02d:%02d:%02d:%02d",Days,tHours,tMinutes,tSeconds));
-            } catch (Exception e) {
+
+            }catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -131,10 +138,6 @@ public class HomeActivity extends Activity {
                     SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
                     editor.putBoolean("isChecked", b);
                     editor.apply();
-//                    if(startDate == null){
-//                        startDate = new Date();
-//                    }
-//                    timerHandler.postDelayed(runnable, 0);
                     startProjection();
                 }
                 else if(!b && isTouched){
@@ -270,20 +273,31 @@ public class HomeActivity extends Activity {
         }else{
             editor.remove("startTime");
         }
-        reader.writeTime(this,timer1TextView.getText().toString(),timer2TextView.getText().toString());
+        writeTime();
         editor.apply();
     }
     public void readTime(){
-        Pair<String,String> time = reader.readTime();
-        timer1TextView.setText(time.first);
-        timer2TextView.setText(time.second);
-        String[] total = time.second.split(":");
-        int days  = Integer.parseInt(total[0]);
-        int hours  = Integer.parseInt(total[1]);
-        int minutes = Integer.parseInt(total[2]);
-        int seconds = Integer.parseInt(total[3]);
-        long t = seconds + 60 * minutes + 3600 * hours + 24 * 3600 *days;
-        totalDate = new Date(t);
-
+        Pair<Long,Long> time = reader.readTime();
+        long t = time.first+time.second;
+        todDate = new Date(time.first);
+        long Days = t / (24 * 60 * 60 * 1000);
+        long Hours = time.first / (60 * 60 * 1000) % 24;
+        long Minutes = time.first / (60 * 1000) % 60;
+        long Seconds = time.first / 1000 % 60;
+        long tHours = t / (60 * 60 * 1000) % 24;
+        long tMinutes = t / (60 * 1000) % 60;
+        long tSeconds = t / 1000 % 60;
+        timer1TextView.setText(String.format("%02d:%02d:%02d", Hours,Minutes,Seconds));
+        timer2TextView.setText(String.format("%02d:%02d:%02d:%02d",Days,tHours,tMinutes,tSeconds));
+        totalDate = new Date(time.second);
+        if(time.first==0){
+            todDate = new Date(0);
+            previousTime = 0;
+        }
+    }
+    public void writeTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        LocalDateTime now = LocalDateTime.now();
+        reader.writeTime(this,""+todDate.getTime()+" "+dtf.format(now),""+totalDate.getTime());
     }
 }
