@@ -556,11 +556,11 @@ public class ScreenCaptureService extends Service {
             if (mMediaProjection != null) {
                 // display metrics
 
-            //    mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
+                mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                 mDisplay = windowManager.getDefaultDisplay();
-                windowManager.getDefaultDisplay().getRealMetrics(metrics);
-                mDensity=metrics.densityDpi;
+//                windowManager.getDefaultDisplay().getRealMetrics(metrics);
+//                mDensity=metrics.densityDpi;
 
 
                 // create virtual display depending on device width / height
@@ -596,15 +596,15 @@ public class ScreenCaptureService extends Service {
     @SuppressLint("WrongConstant")
     private void createVirtualDisplay() {
         // get width and height
-        //mWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        //mHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        mWidth=metrics.widthPixels;
-        mHeight=metrics.heightPixels;
+        mWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        mHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+//        mWidth=metrics.widthPixels;
+//        mHeight=metrics.heightPixels;
         Log.i("mWidth",String.valueOf(mWidth));
         Log.i("mHeight",String.valueOf(mHeight));
 
         // start capture reader
-        mImageReader = ImageReader.newInstance(mWidth-8, mHeight, PixelFormat.RGBA_8888, 2);
+        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
         mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
