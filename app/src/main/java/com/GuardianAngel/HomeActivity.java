@@ -264,8 +264,8 @@ public class HomeActivity extends Activity {
         super.onPause();
     }
     @Override
-    public void onStop(){
-        super.onStop();
+    public void onDestroy(){
+        super.onDestroy();
         timerHandler.removeCallbacks(runnable);
         SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
         if(simpleSwitch.isChecked()) {
