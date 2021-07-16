@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -20,11 +21,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import java.io.BufferedWriter;
@@ -72,7 +75,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class ScreenCaptureService extends Service {
-
+    final DisplayMetrics metrics = new DisplayMetrics();
     private static final String TAG = "ScreenCaptureService";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
@@ -552,9 +555,13 @@ public class ScreenCaptureService extends Service {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
                 // display metrics
-                mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
+
+            //    mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                 mDisplay = windowManager.getDefaultDisplay();
+                windowManager.getDefaultDisplay().getRealMetrics(metrics);
+                mDensity=metrics.densityDpi;
+
 
                 // create virtual display depending on device width / height
                 createVirtualDisplay();
@@ -589,13 +596,15 @@ public class ScreenCaptureService extends Service {
     @SuppressLint("WrongConstant")
     private void createVirtualDisplay() {
         // get width and height
-        mWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        mHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        //mWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        //mHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+        mWidth=metrics.widthPixels;
+        mHeight=metrics.heightPixels;
         Log.i("mWidth",String.valueOf(mWidth));
         Log.i("mHeight",String.valueOf(mHeight));
 
         // start capture reader
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        mImageReader = ImageReader.newInstance(mWidth-8, mHeight, PixelFormat.RGBA_8888, 2);
         mVirtualDisplay = mMediaProjection.createVirtualDisplay(SCREENCAP_NAME, mWidth, mHeight,
                 mDensity, getVirtualDisplayFlags(), mImageReader.getSurface(), null, mHandler);
         mImageReader.setOnImageAvailableListener(new ImageAvailableListener(), mHandler);
