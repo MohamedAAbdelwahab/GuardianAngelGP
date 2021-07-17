@@ -102,7 +102,6 @@ public class ScreenCaptureService extends Service {
     public int i=0;
     FileReader reader;
     private boolean send=true;
-
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -431,7 +430,7 @@ public class ScreenCaptureService extends Service {
     private void sendRequest(RequestBody postBodyImage)
     {
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url("http://192.168.43.127:8000/classify").post(postBodyImage).build();
+        Request request = new Request.Builder().url("http://"+HomeActivity.IP+":8000/classify").post(postBodyImage).build();
         send=false;
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override

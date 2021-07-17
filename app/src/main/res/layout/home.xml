@@ -256,14 +256,14 @@
         android:layout_width="100dp"
         android:layout_height="54dp"
         android:layout_gravity="center"
-        android:layout_marginBottom="80dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/open_sans_bold"
         android:textSize="20sp"
         android:thumb="@drawable/custom_thumb"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
         app:showText="false"
         app:track="@drawable/custom_track" />
 
@@ -271,13 +271,13 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/open_sans_bold"
         android:text="Monitoring"
         android:textColor="#FFFFFF"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/swOnOff"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView12" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

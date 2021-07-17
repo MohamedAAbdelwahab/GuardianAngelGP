@@ -74,10 +74,10 @@ public class NormalStartActivity extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String ExpectedPassword=password.getText().toString();
-                String ActualPassword=file.ReadFile(context,PasswordFileName);
-                Log.i("Actual",ActualPassword);
-                Log.i("hash",hasher.hashPassword(ExpectedPassword));
+                submit.setEnabled(false);
+                password.setEnabled(false);
+                final String ExpectedPassword=password.getText().toString();
+                final String ActualPassword=file.ReadFile(context,PasswordFileName);
                 if(no_attempt[0] >=5)
                 {
                     submit.setEnabled(false);
@@ -88,23 +88,48 @@ public class NormalStartActivity extends Activity {
                 }
 
 //                Log.i("nom attempts", String.valueOf(no_attempt[0]));
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(hasher.checkPassword(ExpectedPassword,ActualPassword))
+                        {
+                            Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
+                            startActivity(i);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    password.setEnabled(true);
+                                    submit.setEnabled(true);
+                                }
+                            });
 
-                if(hasher.checkPassword(ExpectedPassword,ActualPassword))
-                    {
-                        Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
-                        startActivity(i);
-                         finish();
+                            finish();
+                        }
+                        else
+                        {
+                            SharedPreferences.Editor editor = pref.edit();
+                            final int temp = ++no_attempt[0];
+                            editor.putInt("ATTEMPTs",temp);
+                            no_attempt[0]=temp;
+                            editor.apply();
+//                            Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again,you have"+(6-temp)+" left",Toast.LENGTH_LONG).show();
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    password.setEnabled(true);
+                                    submit.setEnabled(true);
+                                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again,you have"+(6-temp)+" left",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+
+                        }
                     }
-                else
-                {
-                    SharedPreferences.Editor editor = pref.edit();
-                    int temp = ++no_attempt[0];
-                    editor.putInt("ATTEMPTs",temp);
-                    no_attempt[0]=temp;
-                    editor.apply();
-                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again,you have"+(6-temp)+" left",Toast.LENGTH_LONG).show();
+                });
+                thread.start();
 
-                }
+
 
             }
         });

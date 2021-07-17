@@ -57,6 +57,7 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
+    public static String IP="192.168.43.127";
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -182,6 +183,9 @@ public class HomeActivity extends Activity {
                                 break;
                             case "Language":
                                 break;
+                            case "Change Server Ip":
+                                Intent Changeip=new Intent(getApplicationContext(),ChangeIpActivity.class);
+                                startActivity(Changeip);
                             default:
                                 break;
                         }
@@ -323,8 +327,12 @@ public class HomeActivity extends Activity {
         }
     }
     public void writeTime(){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        LocalDateTime now = LocalDateTime.now();
-        reader.writeTime(this,""+todDate.getTime()+" "+dtf.format(now),""+totalDate.getTime());
+        SimpleDateFormat format=new SimpleDateFormat("yyyy/MM/dd");
+
+//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+//        LocalDateTime now = LocalDateTime.now();
+        Date c = Calendar.getInstance().getTime();
+
+        reader.writeTime(this,""+todDate.getTime()+" "+format.format(c),""+totalDate.getTime());
     }
 }
