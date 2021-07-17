@@ -47,6 +47,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
@@ -98,13 +99,8 @@ public class ScreenCaptureService extends Service {
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
     Boolean safe=true;
-    private LocalTime TimeObj;
-    private DateTimeFormatter dateformatter=DateTimeFormatter.ofPattern("HH:mm:ss");
     public int i=0;
-    Date d1 = null;
-    Date d2 = null;
     FileReader reader;
-    SimpleDateFormat format=new SimpleDateFormat("HH:mm:ss");
     private boolean send=true;
 
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
@@ -122,8 +118,15 @@ public class ScreenCaptureService extends Service {
                     if(m.obj.toString().equals("Blackout"))
                     {
                         Log.i("Message1",m.obj.toString());
-                        WindowManager.LayoutParams windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY  ,
-                                WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        WindowManager.LayoutParams windowManagerParams;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY  ,
+                                    WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        } else {
+                            windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_PHONE  ,
+                                    WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        }
+
 
                         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -428,7 +431,7 @@ public class ScreenCaptureService extends Service {
     private void sendRequest(RequestBody postBodyImage)
     {
         OkHttpClient okHttpClient = new OkHttpClient();
-        Request request = new Request.Builder().url("http://192.168.1.103:8000/classify").post(postBodyImage).build();
+        Request request = new Request.Builder().url("http://192.168.1.110:8000/classify").post(postBodyImage).build();
         send=false;
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -468,10 +471,13 @@ public class ScreenCaptureService extends Service {
 
                         long delay = 5000L;
                         timer.schedule(task, delay);
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                        LocalDateTime now = LocalDateTime.now();
+                        SimpleDateFormat format=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-                        reader.AppendToFile(getApplicationContext(),dtf.format(now),"statistics.txt");
+//                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+//                        LocalDateTime now = LocalDateTime.now();
+                        Date c = Calendar.getInstance().getTime();
+
+                        reader.AppendToFile(getApplicationContext(),format.format(c),"statistics.txt");
                     }
                     else {
                         send=true;

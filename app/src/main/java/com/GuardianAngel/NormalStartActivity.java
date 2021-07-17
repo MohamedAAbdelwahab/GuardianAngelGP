@@ -20,6 +20,7 @@ public class NormalStartActivity extends Activity {
     EditText password;
     FileReader file;
     Context context;
+    PasswordHash hasher=new PasswordHash();
     private static final String PasswordFileName="PasswordFile.txt";
 
     @Override
@@ -35,7 +36,9 @@ public class NormalStartActivity extends Activity {
             public void onClick(View view) {
                 String ExpectedPassword=password.getText().toString();
                 String ActualPassword=file.ReadFile(context,PasswordFileName);
-                if(ActualPassword.equals(ExpectedPassword))
+                Log.i("Actual",ActualPassword);
+                Log.i("hash",hasher.hashPassword(ExpectedPassword));
+                if(hasher.checkPassword(ExpectedPassword,ActualPassword))
                     {
                         Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
                         startActivity(i);

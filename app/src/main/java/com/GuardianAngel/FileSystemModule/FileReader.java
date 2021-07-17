@@ -261,10 +261,14 @@ public class FileReader {
             e.printStackTrace();
         }
         InputStreamReader isr = new InputStreamReader(fis);
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-        LocalDateTime now = LocalDateTime.now();
-        Log.i("date",dtf.format(now));
-        String today=dtf.format(now);
+        SimpleDateFormat format=new SimpleDateFormat("yyyy/MM/dd");
+//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        Date c = Calendar.getInstance().getTime();
+
+//        LocalDateTime now = LocalDateTime.now();
+
+        Log.i("date",format.format(c));
+        String today= format.format(c);
         long lines = 0;
         try (BufferedReader reader = new BufferedReader(isr)) {
             String Line=reader.readLine();

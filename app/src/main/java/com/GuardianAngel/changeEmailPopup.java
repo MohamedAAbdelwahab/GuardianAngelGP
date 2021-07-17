@@ -24,6 +24,8 @@ public class changeEmailPopup extends Activity {
     EditText newEmail;
     FileReader file;
     Context context;
+    PasswordHash hasher= new PasswordHash();
+
     private static final String PasswordFileName="PasswordFile.txt";
     private static final String EmailFileName="EmailFile.txt";
     @Override
@@ -58,7 +60,7 @@ public class changeEmailPopup extends Activity {
                     }else if(!mail.equals(actualmail)){
                         Toast.makeText(getApplicationContext(),"Email entered is wrong",Toast.LENGTH_LONG).show();
                         finish();
-                    }else if(!pass.equals(actualpassword)) {
+                    }else if(!hasher.checkPassword(pass,actualpassword)) {
                         Toast.makeText(getApplicationContext(),"Password entered is wrong",Toast.LENGTH_LONG).show();
                         finish();
                     }else if(newmail.equals(mail)) {

@@ -19,6 +19,7 @@ public class changePwdPopup extends Activity {
     EditText newPasswordConf;
     FileReader file;
     Context context;
+    PasswordHash hasher=new PasswordHash();
     private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +48,7 @@ public class changePwdPopup extends Activity {
                     Toast.makeText(getApplicationContext(),"Please fill in all fields",Toast.LENGTH_LONG).show();
                     finish();
 
-                }else if(!pass.equals(actualpassword)){
+                }else if(!hasher.checkPassword(pass,actualpassword)){
                     Toast.makeText(getApplicationContext(),"Password entered is wrong",Toast.LENGTH_LONG).show();
                     finish();
                 }else if(!newpass.equals(newpassconf)) {
@@ -57,7 +58,7 @@ public class changePwdPopup extends Activity {
                     Toast.makeText(getApplicationContext(),"new Password matches the old one",Toast.LENGTH_LONG).show();
                     finish();
                 }else {
-                    file.writeFile(context,newpass,PasswordFileName);
+                    file.writeFile(context,hasher.hashPassword(newpass),PasswordFileName);
                     Toast.makeText(getApplicationContext(),"Password changed successfully",Toast.LENGTH_LONG).show();
                     finish();
                 }

@@ -18,6 +18,7 @@ public class enterPwdPopup extends Activity {
     EditText password;
     FileReader file;
     Context context;
+    PasswordHash hasher= new PasswordHash();
     private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +37,7 @@ public class enterPwdPopup extends Activity {
             public void onClick(View view) {
                 String ExpectedPassword=password.getText().toString();
                 String ActualPassword=file.ReadFile(context,PasswordFileName);
-                if(ActualPassword.equals(ExpectedPassword))
+                if(hasher.checkPassword(ExpectedPassword,ActualPassword))
                 {
                     Intent i = new Intent(getApplicationContext(),enterPwdPopup.class);
                     i.putExtra("SUCCESS",100);

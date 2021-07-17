@@ -30,6 +30,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
+    implementation 'org.mindrot:jbcrypt:0.4'
 
     testImplementation 'junit:junit:4.12'
 }

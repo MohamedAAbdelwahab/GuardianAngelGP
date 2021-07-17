@@ -21,6 +21,7 @@ public class Email_and_Password_activity extends Activity {
     EditText EditTextconfirm;
     Button registerbtn;
     Context context=null;
+    PasswordHash hasher=new PasswordHash();
     private static final String PasswordFileName="PasswordFile.txt";
     private static final String EmailFileName="EmailFile.txt";
     public FileReader file;
@@ -82,7 +83,7 @@ public class Email_and_Password_activity extends Activity {
 
                     }else {
                         String Password=EditTextpassword.getText().toString();
-                        file.writeFile(context,Password,PasswordFileName);
+                        file.writeFile(context,hasher.hashPassword(Password),PasswordFileName);
                         String Email=EditTextemail.getText().toString();
                         file.writeFile(context,Email,EmailFileName);
                         Intent i = new Intent(getApplicationContext(), HomeActivity.class);
