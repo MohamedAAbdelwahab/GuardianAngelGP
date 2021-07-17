@@ -4,6 +4,7 @@ package com.GuardianAngel;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.GuardianAngel.FileSystemModule.FileReader;
+
+import java.util.Objects;
 
 public class Email_and_Password_activity extends Activity {
     EditText EditTextemail;
@@ -30,6 +33,13 @@ public class Email_and_Password_activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+        SharedPreferences pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        if (pref.getInt("ATTEMPTs", 0) == 0)
+        {
+            editor.putInt("ATTEMPTs", 0);
+            editor.apply();
+        }
         EditTextemail=findViewById(R.id.Email_box);
         EditTextpassword=findViewById(R.id.Password_box);
         EditTextconfirm=findViewById(R.id.conf_box);

@@ -2,6 +2,7 @@ package com.GuardianAngel;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +10,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.GuardianAngel.FileSystemModule.FileReader;
+
+import java.time.LocalTime;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 //The activity that opens everytime the user taps on the application icon to verify his password and let him into the parent mode
@@ -27,10 +32,45 @@ public class NormalStartActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.normal_start_activity);
+
         context=this;
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn);
         password=findViewById(R.id.password_box);
+        final SharedPreferences  pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
+        final int[] no_attempt = {pref.getInt("ATTEMPTs", 0)};
+//        Log.i("nom attempts", String.valueOf(no_attempt[0]));
+        if(no_attempt[0] >5)
+        {
+            submit.setEnabled(false);
+        }
+        Timer timer = new Timer();
+
+        timer.schedule( new TimerTask() {
+            public void run() {
+//                Log.i("TimeOFLOCK", String.valueOf(pref.getLong("TimeofLock",0)));
+//                Log.i("TimeNOW", String.valueOf(System.currentTimeMillis()));
+//                Log.i("Second Condition", String.valueOf((System.currentTimeMillis()-pref.getLong("TimeofLock",0)) > 3000));
+//                Log.i("First condition", String.valueOf(no_attempt[0]>=5));
+//                Log.i("NomOFATTEM",String.valueOf(no_attempt[0]));
+                no_attempt[0]=pref.getInt("ATTEMPTs",0);
+                if(no_attempt[0]>5 && (System.currentTimeMillis()-pref.getLong("TimeofLock",0)) > 60000 && pref.getLong("TimeofLock",0) != 0)
+                {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            submit.setEnabled(true);
+                        }
+                    });
+
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putInt("ATTEMPTs",0);
+                    editor.apply();
+                }
+
+            }
+        }, 0, 1000);
+
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -38,6 +78,17 @@ public class NormalStartActivity extends Activity {
                 String ActualPassword=file.ReadFile(context,PasswordFileName);
                 Log.i("Actual",ActualPassword);
                 Log.i("hash",hasher.hashPassword(ExpectedPassword));
+                if(no_attempt[0] >=5)
+                {
+                    submit.setEnabled(false);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putLong("TimeofLock",System.currentTimeMillis());
+                    editor.apply();
+
+                }
+
+//                Log.i("nom attempts", String.valueOf(no_attempt[0]));
+
                 if(hasher.checkPassword(ExpectedPassword,ActualPassword))
                     {
                         Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
@@ -45,7 +96,15 @@ public class NormalStartActivity extends Activity {
                          finish();
                     }
                 else
-                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again",Toast.LENGTH_LONG).show();
+                {
+                    SharedPreferences.Editor editor = pref.edit();
+                    int temp = ++no_attempt[0];
+                    editor.putInt("ATTEMPTs",temp);
+                    no_attempt[0]=temp;
+                    editor.apply();
+                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again,you have"+(6-temp)+" left",Toast.LENGTH_LONG).show();
+
+                }
 
             }
         });
