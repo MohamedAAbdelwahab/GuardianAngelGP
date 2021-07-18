@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.GuardianAngel.FileSystemModule.FileReader;
+import com.GuardianAngel.FileSystemModule.Global;
 
 public class changeEmailPopup extends Activity {
     Button submit;
@@ -72,6 +73,7 @@ public class changeEmailPopup extends Activity {
                     }else {
                         file.writeFile(context,newmail,EmailFileName);
                         Toast.makeText(getApplicationContext(),"Email changed successfully",Toast.LENGTH_LONG).show();
+                        Global.email = newmail;
                         finish();
                     }
                 }

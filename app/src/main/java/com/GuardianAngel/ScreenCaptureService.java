@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Insets;
@@ -58,6 +59,7 @@ import androidx.annotation.WorkerThread;
 import androidx.core.util.Pair;
 
 import com.GuardianAngel.FileSystemModule.FileReader;
+import com.GuardianAngel.FileSystemModule.Global;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -259,7 +261,12 @@ public class ScreenCaptureService extends Service {
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
                     MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-                    multipartBodyBuilder.addFormDataPart("email", email);
+                    multipartBodyBuilder.addFormDataPart("email", Global.email);
+                    if(Global.mailbox){
+                        multipartBodyBuilder.addFormDataPart("send", "yes");
+                    }else{
+                        multipartBodyBuilder.addFormDataPart("send", "no");
+                    }
                     multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
                     RequestBody postBodyImage = multipartBodyBuilder.build();
 //                    Log.i("DifferenceTime", String.valueOf(differenceTime));
@@ -511,7 +518,6 @@ public class ScreenCaptureService extends Service {
             stopSelf();
         }
         reader=new FileReader(this);
-
         // start capture handling thread
         new Thread() {
             @Override

@@ -33,7 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.GuardianAngel.FileSystemModule.FileReader;
-
+import com.GuardianAngel.FileSystemModule.Global;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,8 +58,7 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
-    public static String IP="192.168.43.127";
-    private String Email;
+    public static String IP="192.168.1.9";
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -105,7 +104,7 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         reader=new FileReader(this);
-        Email = reader.ReadEmail(this);
+        Global.email = reader.ReadEmail(this);
         timer1TextView = findViewById(R.id.textView19);
         timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);
@@ -168,6 +167,7 @@ public class HomeActivity extends Activity {
                 men.inflate(R.menu.settings_menu);
                 item = men.getMenu().findItem(R.id.app_bar_switch);
                 item.setChecked(pref.getBoolean("Checked", true));
+                Global.mailbox = item.isChecked();
                 men.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
@@ -218,6 +218,7 @@ public class HomeActivity extends Activity {
         }else if(requestCode==200 && resultCode == RESULT_OK){
             if(data.getIntExtra("SUCCESS",0) == 100){
                 item.setChecked(!item.isChecked());
+                Global.mailbox = item.isChecked();
                 SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
                 editor.putBoolean("Checked", item.isChecked());
                 editor.apply();
@@ -237,7 +238,7 @@ public class HomeActivity extends Activity {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 Intent i = com.GuardianAngel.ScreenCaptureService.getStartIntent(this, resultCode, data);
-                i.putExtra("mail",Email);
+                i.putExtra("mail",Global.email);
                 startService(i);
             }
         }
