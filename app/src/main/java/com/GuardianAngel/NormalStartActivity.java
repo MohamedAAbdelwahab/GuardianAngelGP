@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class NormalStartActivity extends Activity {
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn);
         password=findViewById(R.id.password_box);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         final SharedPreferences  pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
         final int[] no_attempt = {pref.getInt("ATTEMPTs", 0)};
 //        Log.i("nom attempts", String.valueOf(no_attempt[0]));
