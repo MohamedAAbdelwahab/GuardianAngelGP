@@ -101,6 +101,7 @@ public class ScreenCaptureService extends Service {
     Boolean safe=true;
     public int i=0;
     FileReader reader;
+    private String email;
     private boolean send=true;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
@@ -258,6 +259,7 @@ public class ScreenCaptureService extends Service {
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
                     MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                    multipartBodyBuilder.addFormDataPart("email", email);
                     multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
                     RequestBody postBodyImage = multipartBodyBuilder.build();
 //                    Log.i("DifferenceTime", String.valueOf(differenceTime));
@@ -492,7 +494,6 @@ public class ScreenCaptureService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
@@ -537,6 +538,7 @@ public class ScreenCaptureService extends Service {
 //                e.printStackTrace();
 //            }
             // create notification
+            email = intent.getStringExtra("mail");
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);
             // start projection

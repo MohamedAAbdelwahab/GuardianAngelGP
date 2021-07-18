@@ -102,6 +102,38 @@ public class FileReader {
         }
         return data;
     }
+    public String ReadEmail(Context context)  {
+        String data=null;
+        FileInputStream fis=null;
+        try {
+            fis=new FileInputStream(mStoreDir +   EmailFileName);
+            InputStreamReader isr=new InputStreamReader(fis);
+            BufferedReader br=new BufferedReader(isr);
+            StringBuilder sb=new StringBuilder();
+            String text;
+            while ((text=br.readLine() )!=null)
+            {
+                sb.append(text);
+
+            }
+            data=sb.toString();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(fis!=null)
+            {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return data;
+    }
     public boolean isExists(Context context)
     {
 

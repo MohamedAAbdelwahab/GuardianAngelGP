@@ -57,7 +57,8 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
-    public static String IP="192.168.43.127";
+    private String Email;
+    public static String IP="192.168.1.9";
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -103,6 +104,7 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         reader=new FileReader(this);
+        Email = reader.ReadEmail(this);
         timer1TextView = findViewById(R.id.textView19);
         timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);
@@ -231,7 +233,9 @@ public class HomeActivity extends Activity {
         }
         if (requestCode == REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                startService(com.GuardianAngel.ScreenCaptureService.getStartIntent(this, resultCode, data));
+                Intent i = com.GuardianAngel.ScreenCaptureService.getStartIntent(this, resultCode, data);
+                i.putExtra("mail",Email);
+                startService(i);
             }
         }
     }
@@ -248,7 +252,8 @@ public class HomeActivity extends Activity {
     private void startProjection() {
         MediaProjectionManager mProjectionManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), REQUEST_CODE);
+        Intent i = mProjectionManager.createScreenCaptureIntent();
+        startActivityForResult(i, REQUEST_CODE);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
