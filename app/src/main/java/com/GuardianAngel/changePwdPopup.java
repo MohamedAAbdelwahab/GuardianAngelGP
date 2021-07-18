@@ -25,7 +25,7 @@ public class changePwdPopup extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_password);
         DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         getWindow().setLayout((int)(width*0.8),(int)(height*0.3));

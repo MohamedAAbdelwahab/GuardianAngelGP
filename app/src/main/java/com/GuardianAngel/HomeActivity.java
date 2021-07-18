@@ -4,6 +4,7 @@ package com.GuardianAngel;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -44,7 +45,7 @@ import java.util.Date;
 public class HomeActivity extends Activity {
     private static final int REQUEST_CODE = 100;
     private MenuItem item;
-    private SwitchCompat simpleSwitch;
+    public static SwitchCompat simpleSwitch;
     static Boolean isTouched = false;
     FileReader reader;
     TextView ProtectiveDoneAllTime;
@@ -112,8 +113,10 @@ public class HomeActivity extends Activity {
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
+        boolean my_service=isMyServiceRunning(ScreenCaptureService.class);
+
         final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
-        simpleSwitch.setChecked(pref.getBoolean("isChecked", false));
+        simpleSwitch.setChecked(my_service);
         if(simpleSwitch.isChecked()){
             timerHandler.postDelayed(runnable, 0);
         }
@@ -232,6 +235,7 @@ public class HomeActivity extends Activity {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 startService(com.GuardianAngel.ScreenCaptureService.getStartIntent(this, resultCode, data));
+
             }
         }
     }
@@ -335,4 +339,14 @@ public class HomeActivity extends Activity {
 
         reader.writeTime(this,""+todDate.getTime()+" "+format.format(c),""+totalDate.getTime());
     }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
