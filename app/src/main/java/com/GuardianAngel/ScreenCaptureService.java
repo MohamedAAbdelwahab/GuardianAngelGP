@@ -529,6 +529,7 @@ public class ScreenCaptureService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (isStartCommand(intent)) {
 //            TimeObj=LocalTime.now();
 //            String time= dateformatter.format(TimeObj);

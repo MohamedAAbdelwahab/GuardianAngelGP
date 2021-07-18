@@ -4,6 +4,7 @@ package com.GuardianAngel;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -57,8 +58,7 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
-    private String Email;
-    public static String IP="192.168.1.9";
+    public static String IP="192.168.43.127";
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -114,8 +114,10 @@ public class HomeActivity extends Activity {
         if(!(Settings.canDrawOverlays(this)))
             requestOverlayPermission();
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
+        boolean my_service=isMyServiceRunning(ScreenCaptureService.class);
+
         final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
-        simpleSwitch.setChecked(pref.getBoolean("isChecked", false));
+        simpleSwitch.setChecked(my_service);
         if(simpleSwitch.isChecked()){
             timerHandler.postDelayed(runnable, 0);
         }
@@ -340,4 +342,14 @@ public class HomeActivity extends Activity {
 
         reader.writeTime(this,""+todDate.getTime()+" "+format.format(c),""+totalDate.getTime());
     }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
