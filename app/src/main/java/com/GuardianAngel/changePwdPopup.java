@@ -3,6 +3,7 @@ package com.GuardianAngel;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -10,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.room.Room;
+
+import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 
 public class changePwdPopup extends Activity {
@@ -20,10 +24,13 @@ public class changePwdPopup extends Activity {
     FileReader file;
     Context context;
     PasswordHash hasher=new PasswordHash();
+    AppDatabase db;
     private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_password);
+        db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "database-name").build();
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
@@ -39,29 +46,65 @@ public class changePwdPopup extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String pass = password.getText().toString();
-                String newpass = newPassword.getText().toString();
-                String actualpassword = file.ReadFile(context,PasswordFileName);
-                String newpassconf = newPasswordConf.getText().toString();
-                if(TextUtils.isEmpty(newPassword.getText()) || TextUtils.isEmpty(newPasswordConf.getText()) || TextUtils.isEmpty(password.getText()) )
-                {
-                    Toast.makeText(getApplicationContext(),"Please fill in all fields",Toast.LENGTH_LONG).show();
-                    finish();
+                final String pass = password.getText().toString();
+                final String newpass = newPassword.getText().toString();
+                final String newpassconf = newPasswordConf.getText().toString();
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String actualpassword =db.userDao().GetUserPassword();
 
-                }else if(!hasher.checkPassword(pass,actualpassword)){
-                    Toast.makeText(getApplicationContext(),"Password entered is wrong",Toast.LENGTH_LONG).show();
-                    finish();
-                }else if(!newpass.equals(newpassconf)) {
-                    Toast.makeText(getApplicationContext(),"New Password and confirmation doesn't match",Toast.LENGTH_LONG).show();
-                    finish();
-                }else if(newpass.equals(pass)) {
-                    Toast.makeText(getApplicationContext(),"new Password matches the old one",Toast.LENGTH_LONG).show();
-                    finish();
-                }else {
-                    file.writeFile(context,hasher.hashPassword(newpass),PasswordFileName);
-                    Toast.makeText(getApplicationContext(),"Password changed successfully",Toast.LENGTH_LONG).show();
-                    finish();
-                }
+                        if(TextUtils.isEmpty(newPassword.getText()) || TextUtils.isEmpty(newPasswordConf.getText()) || TextUtils.isEmpty(password.getText()) )
+                        {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"Please fill in all fields",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                            finish();
+
+                        }else if(!hasher.checkPassword(pass,actualpassword)){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"Password entered is wrong",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                            finish();
+                        }else if(!newpass.equals(newpassconf)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"New Password and confirmation doesn't match",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                            finish();
+                        }else if(newpass.equals(pass)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"new Password matches the old one",Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            finish();
+                        }else {
+                            db.userDao().updatePassword(hasher.hashPassword(newpass),0);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"Password changed successfully",Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            finish();
+                        }
+                    }
+                });
+                thread.start();
+
             }
         });
     }

@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.room.Room;
+
+import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 
 public class enterPwdPopup extends Activity {
@@ -19,10 +22,14 @@ public class enterPwdPopup extends Activity {
     FileReader file;
     Context context;
     PasswordHash hasher= new PasswordHash();
+    AppDatabase db ;
+
     private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_pwd);
+        db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "database-name").build();
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
@@ -35,18 +42,32 @@ public class enterPwdPopup extends Activity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String ExpectedPassword=password.getText().toString();
-                String ActualPassword=file.ReadFile(context,PasswordFileName);
-                if(hasher.checkPassword(ExpectedPassword,ActualPassword))
-                {
-                    Intent i = new Intent(getApplicationContext(),enterPwdPopup.class);
-                    i.putExtra("SUCCESS",100);
-                    setResult(RESULT_OK,i);
-                    finish();
-                }
-                else
-                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again",Toast.LENGTH_LONG).show();
-                    finish();
+                final String ExpectedPassword=password.getText().toString();
+                final String[] ActualPassword = {""};
+                Thread thread=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ActualPassword[0] =db.userDao().GetUserPassword();
+                        if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
+                        {
+                            Intent i = new Intent(getApplicationContext(),enterPwdPopup.class);
+                            i.putExtra("SUCCESS",100);
+                            setResult(RESULT_OK,i);
+                            finish();
+                        }
+                        else
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"Wrong Password .. please check your password again",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                        finish();
+                    }
+                });
+                thread.start();
+
 
             }
         });

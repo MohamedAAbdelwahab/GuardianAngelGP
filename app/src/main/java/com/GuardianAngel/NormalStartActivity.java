@@ -10,6 +10,10 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.room.Room;
+
+import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 
 import java.time.LocalTime;
@@ -27,13 +31,16 @@ public class NormalStartActivity extends Activity {
     FileReader file;
     Context context;
     PasswordHash hasher=new PasswordHash();
+    AppDatabase db;
+
     private static final String PasswordFileName="PasswordFile.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.normal_start_activity);
-
+        db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "database-name").build();
         context=this;
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn);
@@ -79,21 +86,14 @@ public class NormalStartActivity extends Activity {
                 submit.setEnabled(false);
                 password.setEnabled(false);
                 final String ExpectedPassword=password.getText().toString();
-                final String ActualPassword=file.ReadFile(context,PasswordFileName);
-                if(no_attempt[0] >=5)
-                {
-                    submit.setEnabled(false);
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putLong("TimeofLock",System.currentTimeMillis());
-                    editor.apply();
-
-                }
-
-//                Log.i("nom attempts", String.valueOf(no_attempt[0]));
+//                final String ActualPassword=file.ReadFile(context,PasswordFileName);
+                final String[] ActualPassword = {""};
                 Thread thread=new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        if(hasher.checkPassword(ExpectedPassword,ActualPassword))
+                        ActualPassword[0] =db.userDao().GetUserPassword();
+                        Log.i("ad",ActualPassword[0]);
+                        if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
                         {
                             Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
                             startActivity(i);
@@ -125,11 +125,22 @@ public class NormalStartActivity extends Activity {
 
                                 }
                             });
-
                         }
                     }
                 });
                 thread.start();
+
+                if(no_attempt[0] >=5)
+                {
+                    submit.setEnabled(false);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putLong("TimeofLock",System.currentTimeMillis());
+                    editor.apply();
+
+                }
+
+//                Log.i("nom attempts", String.valueOf(no_attempt[0]));
+
 
 
 
