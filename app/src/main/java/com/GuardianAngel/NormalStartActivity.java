@@ -18,9 +18,20 @@ import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 //The activity that opens everytime the user taps on the application icon to verify his password and let him into the parent mode
@@ -157,7 +168,32 @@ public class NormalStartActivity extends Activity {
                             SharedPreferences.Editor editor = pref.edit();
                             editor.putLong("TimeofLock",System.currentTimeMillis());
                             editor.apply();
+                            MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                            multipartBodyBuilder.addFormDataPart("receiver", Global.email);
+                            multipartBodyBuilder.addFormDataPart("APIpwd", "94Vtwn0iHVQSpBT");
+                            RequestBody postBody = multipartBodyBuilder.build();
+                            OkHttpClient okHttpClient = new OkHttpClient();
+                            Request request = new Request.Builder().url("http://"+HomeActivity.IP+":8000/warn").post(postBody).build();
+                            okHttpClient.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(),"server error",Toast.LENGTH_LONG).show();
 
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                    if(response.isSuccessful())
+                                    {
+
+                                    }
+                                }
+                            });
                         }
 
 
