@@ -41,13 +41,17 @@ public class NormalStartActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.normal_start_activity);
+        final String[] ActualPassword = {""};
+
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
+
         context=this;
         Thread thread2=new Thread(new Runnable() {
             @Override
             public void run() {
                 Global.email = db.userDao().GetUserEmail();
+                ActualPassword[0] =db.userDao().GetUserPassword();
 
             }
         });
@@ -87,6 +91,7 @@ public class NormalStartActivity extends Activity {
 //                Log.i("First condition", String.valueOf(no_attempt[0]>=5));
 //                Log.i("NomOFATTEM",String.valueOf(no_attempt[0]));
                 no_attempt[0]=pref.getInt("ATTEMPTs",0);
+                Log.i("asdasd", String.valueOf(no_attempt[0]));
                 if(no_attempt[0]>5 && (System.currentTimeMillis()-pref.getLong("TimeofLock",0)) > 60000 && pref.getLong("TimeofLock",0) != 0)
                 {
                     runOnUiThread(new Runnable() {
@@ -111,11 +116,7 @@ public class NormalStartActivity extends Activity {
                 password.setEnabled(false);
                 final String ExpectedPassword=password.getText().toString();
 //                final String ActualPassword=file.ReadFile(context,PasswordFileName);
-                final String[] ActualPassword = {""};
-                Thread thread=new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ActualPassword[0] =db.userDao().GetUserPassword();
+
                         Log.i("ad",ActualPassword[0]);
                         if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
                         {
@@ -150,18 +151,17 @@ public class NormalStartActivity extends Activity {
                                 }
                             });
                         }
-                    }
-                });
-                thread.start();
+                        if(no_attempt[0] >5)
+                        {
+                            submit.setEnabled(false);
+                            SharedPreferences.Editor editor = pref.edit();
+                            editor.putLong("TimeofLock",System.currentTimeMillis());
+                            editor.apply();
 
-                if(no_attempt[0] >=5)
-                {
-                    submit.setEnabled(false);
-                    SharedPreferences.Editor editor = pref.edit();
-                    editor.putLong("TimeofLock",System.currentTimeMillis());
-                    editor.apply();
+                        }
 
-                }
+
+
 
 //                Log.i("nom attempts", String.valueOf(no_attempt[0]));
 

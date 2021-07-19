@@ -49,4 +49,10 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     testImplementation 'junit:junit:4.12'
+    android {
+        compileOptions {
+            sourceCompatibility 1.8
+            targetCompatibility 1.8
+        }
+    }
 }
