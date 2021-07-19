@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.room.Room;
@@ -34,7 +35,7 @@ public class enterPwdPopup extends Activity {
         getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        getWindow().setLayout((int)(width*0.8),(int)(height*0.2));
+        getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         context=this;
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn4);

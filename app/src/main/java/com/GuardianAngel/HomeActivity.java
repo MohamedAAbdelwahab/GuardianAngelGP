@@ -31,7 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.room.Room;
 
+import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 import java.io.IOException;
@@ -59,6 +61,7 @@ public class HomeActivity extends Activity {
     private ImageView face;
     private TextView faceText;
     public static String IP="192.168.1.9";
+    AppDatabase db;
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -104,7 +107,9 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         reader=new FileReader(this);
-        Global.email = reader.ReadEmail(this);
+        db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, "database-name").build();
+
         timer1TextView = findViewById(R.id.textView19);
         timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);

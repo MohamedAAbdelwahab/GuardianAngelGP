@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -41,7 +42,7 @@ public class changeEmailPopup extends Activity {
         getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        getWindow().setLayout((int)(width*0.8),(int)(height*0.3));
+        getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         email=findViewById(R.id.email_box);
         newEmail=findViewById(R.id.email_box2);
         password=findViewById(R.id.password_box2);

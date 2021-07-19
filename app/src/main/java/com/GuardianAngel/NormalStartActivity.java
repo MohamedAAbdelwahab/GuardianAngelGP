@@ -9,12 +9,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.room.Room;
 
 import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
+import com.GuardianAngel.FileSystemModule.Global;
 
 import java.time.LocalTime;
 import java.util.Timer;
@@ -32,7 +34,7 @@ public class NormalStartActivity extends Activity {
     Context context;
     PasswordHash hasher=new PasswordHash();
     AppDatabase db;
-
+    TextView forgetPassword;
     private static final String PasswordFileName="PasswordFile.txt";
 
     @Override
@@ -42,9 +44,31 @@ public class NormalStartActivity extends Activity {
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
         context=this;
+        Thread thread2=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Global.email = db.userDao().GetUserEmail();
+
+            }
+        });
+            thread2.start();
+        try {
+            thread2.join();
+            Log.i("Email",Global.email);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn);
         password=findViewById(R.id.password_box);
+        forgetPassword=findViewById(R.id.textView8);
+        forgetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getApplicationContext(),PasswordRestore.class);
+                startActivity(intent);
+            }
+        });
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         final SharedPreferences  pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
         final int[] no_attempt = {pref.getInt("ATTEMPTs", 0)};

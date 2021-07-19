@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.room.Room;
@@ -35,7 +36,7 @@ public class changePwdPopup extends Activity {
         getWindowManager().getDefaultDisplay().getRealMetrics(dm);
         int width = dm.widthPixels;
         int height = dm.heightPixels;
-        getWindow().setLayout((int)(width*0.8),(int)(height*0.3));
+        getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         newPassword=findViewById(R.id.password_box4);
         newPasswordConf=findViewById(R.id.password_box6);
         password=findViewById(R.id.password_box3);
@@ -74,7 +75,18 @@ public class changePwdPopup extends Activity {
                                 }
                             });
                             finish();
-                        }else if(!newpass.equals(newpassconf)) {
+                        }
+                        else if (newpass.length()<8){
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(),"Password Should be more than 8 characters",Toast.LENGTH_LONG).show();
+
+                                }
+                            });
+                        }
+                        else if(!newpass.equals(newpassconf)) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

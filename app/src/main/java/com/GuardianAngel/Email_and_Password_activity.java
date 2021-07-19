@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.room.Room;
 
@@ -96,6 +97,16 @@ public class Email_and_Password_activity extends Activity {
 
                             }else if(!Patterns.EMAIL_ADDRESS.matcher(EditTextemail.getText()).matches()){
                                 EditTextemail.setError( "enter a valid email" );
+                            }
+                            else if (EditTextpassword.getText().length()<8){
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(),"Password Should be more than 8 characters",Toast.LENGTH_LONG).show();
+
+                                    }
+                                });
                             }
                             else if(!password.equals(confirmation)){
                                 EditTextconfirm.setError( "password doesn't match!" );
