@@ -267,6 +267,7 @@ public class ScreenCaptureService extends Service {
                     }else{
                         multipartBodyBuilder.addFormDataPart("send", "no");
                     }
+                    multipartBodyBuilder.addFormDataPart("APIpwd", "94Vtwn0iHVQSpBT");
                     multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
                     RequestBody postBodyImage = multipartBodyBuilder.build();
 //                    Log.i("DifferenceTime", String.valueOf(differenceTime));
