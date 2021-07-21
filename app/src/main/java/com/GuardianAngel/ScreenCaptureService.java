@@ -6,8 +6,10 @@ import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
@@ -20,11 +22,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 
 import java.io.BufferedWriter;
@@ -36,8 +40,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,7 +58,12 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.Pair;
 
+import com.GuardianAngel.FileSystemModule.FileReader;
+import com.GuardianAngel.FileSystemModule.Global;
+
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -59,8 +76,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class ScreenCaptureService extends Service {
-
+    final DisplayMetrics metrics = new DisplayMetrics();
     private static final String TAG = "ScreenCaptureService";
     private static final String RESULT_CODE = "RESULT_CODE";
     private static final String DATA = "DATA";
@@ -83,7 +101,10 @@ public class ScreenCaptureService extends Service {
     private int mRotation;
     private OrientationChangeCallback mOrientationChangeCallback;
     Boolean safe=true;
-
+    public int i=0;
+    FileReader reader;
+    private String email;
+    private boolean send=true;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -99,8 +120,15 @@ public class ScreenCaptureService extends Service {
                     if(m.obj.toString().equals("Blackout"))
                     {
                         Log.i("Message1",m.obj.toString());
-                        WindowManager.LayoutParams windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY  ,
-                                WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        WindowManager.LayoutParams windowManagerParams;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY  ,
+                                    WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        } else {
+                            windowManagerParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.TYPE_PHONE  ,
+                                    WindowManager.LayoutParams. FLAG_DIM_BEHIND, PixelFormat.TRANSLUCENT);
+                        }
+
 
                         wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -113,9 +141,23 @@ public class ScreenCaptureService extends Service {
                     }
                     else if (m.obj.toString().equals("Safe")){
                         Log.i("Message2",m.obj.toString());
-                        wm.removeView(myView);
-                        removeMessages(0);
-                        safe=true;
+                        if(!safe)
+                        {
+                            wm.removeView(myView);
+                            removeMessages(0);
+                            TimerTask task = new TimerTask() {
+                                public void run() {
+                                    safe=true;
+                                    send=true;
+
+                                }
+                            };
+                            Timer timer = new Timer("Timer");
+
+                            long delay = 200L;
+                            timer.schedule(task, delay);
+
+                        }
 
                     }
 
@@ -146,7 +188,14 @@ public class ScreenCaptureService extends Service {
         @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onImageAvailable(ImageReader reader) {
-
+//            LocalTime ImageTime=LocalTime.now();
+//            String ImageTimeString=dateformatter.format(ImageTime);
+//            try {
+//                d2=format.parse(ImageTimeString);
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
+//            long differenceTime=-d1.getTime()+d2.getTime();
             FileOutputStream fos = null;
             Bitmap bitmap = null;
             try (Image image = mImageReader.acquireLatestImage()) {
@@ -159,16 +208,16 @@ public class ScreenCaptureService extends Service {
 
 
                     // create bitmap
-                    Log.i("Image Width: ", String.valueOf(mWidth + rowPadding / pixelStride));
-                    Log.i("Image Height: ", String.valueOf(mHeight));
+//                    Log.i("Image Width: ", String.valueOf(mWidth + rowPadding / pixelStride));
+//                    Log.i("Image Height: ", String.valueOf(mHeight));
                     bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
                     bitmap.copyPixelsFromBuffer(buffer);
 
 
 
                     // write bitmap to a file
-                    fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+//                    fos = new FileOutputStream(mStoreDir + "/myscreen_" + IMAGES_PRODUCED + ".png");
+//                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                       //  Log.i("bitmap",bitmap.toString());
 
                     //create a file to write bitmap data
@@ -178,11 +227,10 @@ public class ScreenCaptureService extends Service {
                 //    f.createNewFile();
 
                     //Convert bitmap to byte array
-                    Bitmap bitmap2 = bitmap;
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    bitmap2.compress(Bitmap.CompressFormat.JPEG, 25 /*ignored for PNG*/, bos);
-                    final byte[] bitmapdata = bos.toByteArray();
-                    Log.i("byte array", Arrays.toString(bitmapdata));
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 25 /*ignored for PNG*/, bos);
+                     byte[] bitmapdata = bos.toByteArray();
+//                    Log.i("byte array", Arrays.toString(bitmapdata));
                     //TODO : wedit , height , exention,ByteArray
                     //write the bytes in file
 //                    FileOutputStream fos2 = null;
@@ -212,48 +260,44 @@ public class ScreenCaptureService extends Service {
 //                    }
                     IMAGES_PRODUCED++;
                     Log.e(TAG, "captured image: " + IMAGES_PRODUCED);
-                    RequestBody formbody=new FormBody.Builder().add("ByteArray", Arrays.toString(bitmapdata)).add("width", String.valueOf(mWidth)).add("height",String.valueOf(mHeight)).add("extension","JPEG").build();
-                    OkHttpClient okHttpClient=new OkHttpClient();
-                    Request request=new Request.Builder().url("http://192.168.1.103:5000/").post(formbody).build();
-                    okHttpClient.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                            Log.i("Unsuccessful","Unsuccessful");
-
+                    MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                    multipartBodyBuilder.addFormDataPart("email", Global.email);
+                    if(Global.mailbox){
+                        multipartBodyBuilder.addFormDataPart("send", "yes");
+                    }else{
+                        multipartBodyBuilder.addFormDataPart("send", "no");
+                    }
+                    multipartBodyBuilder.addFormDataPart("APIpwd", "94Vtwn0iHVQSpBT");
+                    multipartBodyBuilder.addFormDataPart("img", "img", RequestBody.create(MediaType.parse("image/*jpg"), bitmapdata));
+                    RequestBody postBodyImage = multipartBodyBuilder.build();
+//                    Log.i("DifferenceTime", String.valueOf(differenceTime));
+//                    Log.i("ImageTime", String.valueOf(d1.getTime()));
+//                    Log.i("TimeObj",String.valueOf(d2.getTime()));
+                    if(send)
+                    {
+//                            TimeObj = LocalTime.now();
+//                            String time = dateformatter.format(TimeObj);
+//                            try {
+//                                d1 = format.parse(time);
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
+//                            }
+                        sendRequest(postBodyImage);
                         }
 
-                        @Override
-                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                            if(response.isSuccessful())
-                            {
-                                if(Objects.requireNonNull(response.body()).string().equals("Blackout"))
-                                     {
-                                         if(safe)
-                                         {
-                                             Message m1=Message.obtain();
-                                             m1.obj="Blackout";
-                                             handler.sendMessage(m1);
-
-                                         }
-
-                                     }
-
-                                else {
-                                    if(!safe)
-                                    {
-                                        Message m1=Message.obtain();
-                                        m1.obj="Safe";
-                                        handler.sendMessage(m1);
-                                    }
 
 
 
-                                }
-                                Log.i("successful","successful");
-                            }
+//                    RequestBody formbody=new FormBody.Builder().add("img", Arrays.toString(bitmapdata)).build();
 
-                        }
-                    });
+
+
+
+
+
+
+
+
 
 //                    new Thread(new Runnable() {
 //                        @Override
@@ -393,11 +437,71 @@ public class ScreenCaptureService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+    private void sendRequest(RequestBody postBodyImage)
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder().url("http://"+HomeActivity.IP+":8000/classify").post(postBodyImage).build();
+        send=false;
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.i("Unsuccessful", "Unsuccessful");
+                e.printStackTrace();
+                send=true;
+            }
 
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.i("Response", "Response" + i);
+                    i++;
+                    int responecode = 0;
+                    String responseData = response.body().string();
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseData);
+                        responecode = jsonObject.getInt("block");
+                        Log.i("Block", String.valueOf(responecode));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (responecode == 1) {
+                        Message m1 = Message.obtain();
+                        m1.obj = "Blackout";
+                        handler.sendMessage(m1);
+                        send=false;
+                        TimerTask task = new TimerTask() {
+                            public void run() {
+                                Message m1 = Message.obtain();
+                                m1.obj = "Safe";
+                                handler.sendMessage(m1);
+                            }
+                        };
+                        Timer timer = new Timer("Timer");
+
+                        long delay = 5000L;
+                        timer.schedule(task, delay);
+                        SimpleDateFormat format=new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+//                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+//                        LocalDateTime now = LocalDateTime.now();
+                        Date c = Calendar.getInstance().getTime();
+
+                        reader.AppendToFile(getApplicationContext(),format.format(c),"statistics.txt");
+                    }
+                    else {
+                        send=true;
+
+                    }
+                    Log.i("successful", "successful");
+                }
+
+            }
+        });
+
+    }
     @Override
     public void onCreate() {
         super.onCreate();
-
         // create store dir
         File externalFilesDir = getExternalFilesDir(null);
         if (externalFilesDir != null) {
@@ -414,7 +518,7 @@ public class ScreenCaptureService extends Service {
             Log.e(TAG, "failed to create file storage directory, getExternalFilesDir is null.");
             stopSelf();
         }
-
+        reader=new FileReader(this);
         // start capture handling thread
         new Thread() {
             @Override
@@ -429,10 +533,20 @@ public class ScreenCaptureService extends Service {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (isStartCommand(intent)) {
+//            TimeObj=LocalTime.now();
+//            String time= dateformatter.format(TimeObj);
+//            try {
+//                d1=format.parse(time);
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
             // create notification
+            email = intent.getStringExtra("mail");
             Pair<Integer, Notification> notification = NotificationUtils.getNotification(this);
             startForeground(notification.first, notification.second);
             // start projection
@@ -456,9 +570,13 @@ public class ScreenCaptureService extends Service {
             mMediaProjection = mpManager.getMediaProjection(resultCode, data);
             if (mMediaProjection != null) {
                 // display metrics
+
                 mDensity = Resources.getSystem().getDisplayMetrics().densityDpi;
                 WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
                 mDisplay = windowManager.getDefaultDisplay();
+//                windowManager.getDefaultDisplay().getRealMetrics(metrics);
+//                mDensity=metrics.densityDpi;
+
 
                 // create virtual display depending on device width / height
                 createVirtualDisplay();
@@ -473,6 +591,8 @@ public class ScreenCaptureService extends Service {
                 mMediaProjection.registerCallback(new MediaProjectionStopCallback(), mHandler);
             }
         }
+        com.GuardianAngel.HomeActivity.startDate = new Date();
+        com.GuardianAngel.HomeActivity.timerHandler.postDelayed(com.GuardianAngel.HomeActivity.runnable, 0);
     }
 
     private void stopProjection() {
@@ -493,6 +613,8 @@ public class ScreenCaptureService extends Service {
         // get width and height
         mWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         mHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+//        mWidth=metrics.widthPixels;
+//        mHeight=metrics.heightPixels;
         Log.i("mWidth",String.valueOf(mWidth));
         Log.i("mHeight",String.valueOf(mHeight));
 
