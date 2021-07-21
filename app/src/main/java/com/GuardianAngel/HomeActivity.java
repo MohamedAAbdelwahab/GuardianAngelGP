@@ -120,8 +120,8 @@ public class HomeActivity extends Activity {
             requestOverlayPermission();
         simpleSwitch = (SwitchCompat) findViewById(R.id.swOnOff);
         boolean my_service=isMyServiceRunning(ScreenCaptureService.class);
-
         final SharedPreferences pref = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE);
+        Global.mailbox = pref.getBoolean("Checked", true);
         simpleSwitch.setChecked(my_service);
         if(simpleSwitch.isChecked()){
             timerHandler.postDelayed(runnable, 0);
@@ -171,7 +171,7 @@ public class HomeActivity extends Activity {
                 PopupMenu men = new PopupMenu(wrapper,v);
                 men.inflate(R.menu.settings_menu);
                 item = men.getMenu().findItem(R.id.app_bar_switch);
-                item.setChecked(pref.getBoolean("Checked", true));
+                item.setChecked(Global.mailbox);
                 Global.mailbox = item.isChecked();
                 men.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override

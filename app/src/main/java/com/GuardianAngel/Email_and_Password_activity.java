@@ -19,6 +19,7 @@ import androidx.room.Room;
 
 import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
+import com.GuardianAngel.FileSystemModule.Global;
 import com.GuardianAngel.FileSystemModule.User;
 
 import java.util.Objects;
@@ -127,6 +128,7 @@ public class Email_and_Password_activity extends Activity {
                                     }
                                 });
                                 thread.start();
+                                Global.email = EditTextemail.getText().toString();
                                 getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
                                         .putBoolean("isFirstRun", false).apply();
                                 Intent i = new Intent(getApplicationContext(), HomeActivity.class);
