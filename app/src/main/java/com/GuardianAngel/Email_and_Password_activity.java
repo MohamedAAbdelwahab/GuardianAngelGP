@@ -7,33 +7,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.room.Room;
-
 import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 import com.GuardianAngel.FileSystemModule.User;
-
-import java.util.Objects;
 
 public class Email_and_Password_activity extends Activity {
     EditText EditTextemail;
     EditText EditTextpassword;
     EditText EditTextconfirm;
     Button registerbtn;
-    Context context=null;
     PasswordHash hasher=new PasswordHash();
-    private static final String PasswordFileName="PasswordFile.txt";
-    private static final String EmailFileName="EmailFile.txt";
-    public FileReader file;
     AppDatabase db ;
 
     @Override
@@ -53,7 +44,6 @@ public class Email_and_Password_activity extends Activity {
         EditTextpassword=findViewById(R.id.Password_box);
         EditTextconfirm=findViewById(R.id.conf_box);
         registerbtn=findViewById(R.id.reg_btn);
-        file=new FileReader(this);
         Thread thread=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,20 +55,6 @@ public class Email_and_Password_activity extends Activity {
 
 
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
-
-            /*if(TextUtils.isEmpty(EditTextemail.getText()) || TextUtils.isEmpty(EditTextpassword.getText()) )
-            {
-                if( TextUtils.isEmpty(EditTextemail.getText())){
-                    EditTextemail.setError( "Email is required!" );
-                }
-                if (TextUtils.isEmpty(EditTextpassword.getText())){
-                    EditTextpassword.setError( "password is required!" );
-                }
-                if (TextUtils.isEmpty(EditTextconfirm.getText())){
-                    EditTextconfirm.setError( "password confirmation required!" );
-                }
-            }*/
                     registerbtn.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -114,9 +90,7 @@ public class Email_and_Password_activity extends Activity {
 
                             }else {
                                 String Password=EditTextpassword.getText().toString();
-//                        file.writeFile(context,hasher.hashPassword(Password),PasswordFileName);
                                 String Email=EditTextemail.getText().toString();
-//                        file.writeFile(context,Email,EmailFileName);
                                 final User user=new User();
                                 user.Email=Email;
                                 user.Password=hasher.hashPassword(Password);

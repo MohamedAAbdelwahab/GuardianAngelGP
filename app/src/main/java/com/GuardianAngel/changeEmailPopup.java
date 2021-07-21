@@ -1,24 +1,16 @@
 package com.GuardianAngel;
-
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Patterns;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import androidx.annotation.Nullable;
 import androidx.room.Room;
-
 import com.GuardianAngel.FileSystemModule.AppDatabase;
-import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 
 public class changeEmailPopup extends Activity {
@@ -26,30 +18,19 @@ public class changeEmailPopup extends Activity {
     EditText password;
     EditText email;
     EditText newEmail;
-    FileReader file;
-    Context context;
     PasswordHash hasher= new PasswordHash();
     AppDatabase db;
-    private static final String PasswordFileName="PasswordFile.txt";
-    private static final String EmailFileName="EmailFile.txt";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_email);
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getRealMetrics(dm);
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         email=findViewById(R.id.email_box);
         newEmail=findViewById(R.id.email_box2);
         password=findViewById(R.id.password_box2);
         submit=findViewById(R.id.log_btn2);
-//        file=new FileReader(this);;
-        context=this;
-
         submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -110,7 +91,6 @@ public class changeEmailPopup extends Activity {
                                 });
                                 finish();
                             }else {
-//                                file.writeFile(context,newmail,EmailFileName);
                                 db.userDao().updateEmail(newmail,0);
                                 runOnUiThread(new Runnable() {
                                     @Override

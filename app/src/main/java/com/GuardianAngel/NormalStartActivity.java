@@ -1,10 +1,10 @@
 package com.GuardianAngel;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,13 +15,11 @@ import android.widget.Toast;
 import androidx.room.Room;
 
 import com.GuardianAngel.FileSystemModule.AppDatabase;
-import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,12 +39,9 @@ import okhttp3.Response;
 public class NormalStartActivity extends Activity {
     Button submit;
     EditText password;
-    FileReader file;
-    Context context;
     PasswordHash hasher=new PasswordHash();
     AppDatabase db;
     TextView forgetPassword;
-    private static final String PasswordFileName="PasswordFile.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +52,6 @@ public class NormalStartActivity extends Activity {
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
 
-        context=this;
         Thread thread2=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -69,11 +63,9 @@ public class NormalStartActivity extends Activity {
             thread2.start();
         try {
             thread2.join();
-            Log.i("Email",Global.email);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        file=new FileReader(this);
         submit=findViewById(R.id.log_btn);
         password=findViewById(R.id.password_box);
         forgetPassword=findViewById(R.id.textView8);
@@ -87,7 +79,6 @@ public class NormalStartActivity extends Activity {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         final SharedPreferences  pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
         final int[] no_attempt = {pref.getInt("ATTEMPTs", 0)};
-//        Log.i("nom attempts", String.valueOf(no_attempt[0]));
         if(no_attempt[0] >5)
         {
             submit.setEnabled(false);
@@ -96,13 +87,7 @@ public class NormalStartActivity extends Activity {
 
         timer.schedule( new TimerTask() {
             public void run() {
-//                Log.i("TimeOFLOCK", String.valueOf(pref.getLong("TimeofLock",0)));
-//                Log.i("TimeNOW", String.valueOf(System.currentTimeMillis()));
-//                Log.i("Second Condition", String.valueOf((System.currentTimeMillis()-pref.getLong("TimeofLock",0)) > 3000));
-//                Log.i("First condition", String.valueOf(no_attempt[0]>=5));
-//                Log.i("NomOFATTEM",String.valueOf(no_attempt[0]));
                 no_attempt[0]=pref.getInt("ATTEMPTs",0);
-                Log.i("asdasd", String.valueOf(no_attempt[0]));
                 if(no_attempt[0]>5 && (System.currentTimeMillis()-pref.getLong("TimeofLock",0)) > 60000 && pref.getLong("TimeofLock",0) != 0)
                 {
                     runOnUiThread(new Runnable() {
@@ -126,9 +111,7 @@ public class NormalStartActivity extends Activity {
                 submit.setEnabled(false);
                 password.setEnabled(false);
                 final String ExpectedPassword=password.getText().toString();
-//                final String ActualPassword=file.ReadFile(context,PasswordFileName);
 
-                        Log.i("ad",ActualPassword[0]);
                         if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
                         {
                             Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
@@ -199,16 +182,11 @@ public class NormalStartActivity extends Activity {
 
 
 
-//                Log.i("nom attempts", String.valueOf(no_attempt[0]));
 
 
 
 
             }
         });
-        // start projection
-
-        // stop projection
-
     }
 }

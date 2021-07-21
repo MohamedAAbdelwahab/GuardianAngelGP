@@ -21,22 +21,15 @@ public class enterPwdPopup extends Activity {
     Button submit;
     EditText password;
     FileReader file;
-    Context context;
     PasswordHash hasher= new PasswordHash();
     AppDatabase db ;
 
-    private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_pwd);
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getRealMetrics(dm);
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        context=this;
         file=new FileReader(this);
         submit=findViewById(R.id.log_btn4);
         password=findViewById(R.id.pwd_box);

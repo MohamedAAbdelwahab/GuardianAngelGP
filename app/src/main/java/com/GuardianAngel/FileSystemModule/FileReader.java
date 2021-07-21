@@ -24,8 +24,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class FileReader {
-    private static final String PasswordFileName="PasswordFile.txt";
-    private static final String EmailFileName="EmailFile.txt";
     private static final String time="time.txt";
     private String mStoreDir;
     FileOutputStream fos=null;
@@ -48,101 +46,6 @@ public class FileReader {
         }
 
 }
-   public  void writeFile(Context context,String data,String FileName)  {
-
-       try {
-           fos = new FileOutputStream(mStoreDir +   FileName);
-           fos.write(data.getBytes());
-           Log.e("hi","done"+context.getFilesDir()+FileName);
-       } catch (FileNotFoundException ex) {
-           ex.printStackTrace();
-       } catch (IOException e) {
-           e.printStackTrace();
-       } finally {
-           if(fos!=null) {
-               try {
-                   fos.close();
-               } catch (IOException e) {
-                   e.printStackTrace();
-               }
-           }
-       }
-
-   }
-    public String ReadFile(Context context,String FileName)  {
-       String data=null;
-        FileInputStream fis=null;
-        try {
-            fis=new FileInputStream(mStoreDir +   FileName);
-            InputStreamReader isr=new InputStreamReader(fis);
-            BufferedReader br=new BufferedReader(isr);
-            StringBuilder sb=new StringBuilder();
-            String text;
-            while ((text=br.readLine() )!=null)
-            {
-                sb.append(text);
-
-            }
-            Log.i("mytext",sb.toString());
-            data=sb.toString();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            if(fis!=null)
-            {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return data;
-    }
-    public String ReadEmail(Context context)  {
-        String data=null;
-        FileInputStream fis=null;
-        try {
-            fis=new FileInputStream(mStoreDir +   EmailFileName);
-            InputStreamReader isr=new InputStreamReader(fis);
-            BufferedReader br=new BufferedReader(isr);
-            StringBuilder sb=new StringBuilder();
-            String text;
-            while ((text=br.readLine() )!=null)
-            {
-                sb.append(text);
-
-            }
-            data=sb.toString();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            if(fis!=null)
-            {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return data;
-    }
-    public boolean isExists(Context context)
-    {
-
-
-        File f = new File(mStoreDir+PasswordFileName);
-        Log.e("file",f.toString());
-        return f.exists();
-
-    }
     public  void AppendToFile(Context context,String data,String FileName)  {
         File file = new File(mStoreDir +   FileName);
         FileWriter fr = null;
@@ -294,12 +197,8 @@ public class FileReader {
         }
         InputStreamReader isr = new InputStreamReader(fis);
         SimpleDateFormat format=new SimpleDateFormat("yyyy/MM/dd");
-//        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         Date c = Calendar.getInstance().getTime();
 
-//        LocalDateTime now = LocalDateTime.now();
-
-        Log.i("date",format.format(c));
         String today= format.format(c);
         long lines = 0;
         try (BufferedReader reader = new BufferedReader(isr)) {
@@ -313,7 +212,6 @@ public class FileReader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(lines);
         return lines;
     }
 

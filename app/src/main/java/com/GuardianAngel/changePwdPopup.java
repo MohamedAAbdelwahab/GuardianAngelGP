@@ -3,9 +3,7 @@ package com.GuardianAngel;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Looper;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,26 +21,19 @@ public class changePwdPopup extends Activity {
     EditText newPassword;
     EditText newPasswordConf;
     FileReader file;
-    Context context;
     PasswordHash hasher=new PasswordHash();
     AppDatabase db;
-    private static final String PasswordFileName="PasswordFile.txt";
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_password);
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getRealMetrics(dm);
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         newPassword=findViewById(R.id.password_box4);
         newPasswordConf=findViewById(R.id.password_box6);
         password=findViewById(R.id.password_box3);
         submit=findViewById(R.id.log_btn3);
         file=new FileReader(this);;
-        context=this;
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
