@@ -13,6 +13,7 @@ import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.media.AudioManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
@@ -105,6 +106,7 @@ public class ScreenCaptureService extends Service {
     FileReader reader;
     private String email;
     private boolean send=true;
+    AudioManager audioManager;
     public static Intent getStartIntent(Context context, int resultCode, Intent data) {
         Intent intent = new Intent(context, ScreenCaptureService.class);
         intent.putExtra(ACTION, START);
@@ -138,12 +140,17 @@ public class ScreenCaptureService extends Service {
                         wm.addView(myView, windowManagerParams);
                         removeMessages(0);
                         safe=false;
+                        audioManager= (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        audioManager.adjustVolume(AudioManager.ADJUST_MUTE,AudioManager.FLAG_SHOW_UI);
                     }
                     else if (m.obj.toString().equals("Safe")){
                         Log.i("Message2",m.obj.toString());
                         if(!safe)
                         {
                             wm.removeView(myView);
+                            audioManager= (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                            audioManager.adjustVolume(AudioManager.ADJUST_UNMUTE,AudioManager.FLAG_SHOW_UI);
+
                             removeMessages(0);
                             TimerTask task = new TimerTask() {
                                 public void run() {

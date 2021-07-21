@@ -60,7 +60,7 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
-    public static String IP="192.168.1.9";
+    public static String IP="192.168.1.104";
     AppDatabase db;
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
