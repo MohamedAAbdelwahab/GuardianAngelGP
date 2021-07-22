@@ -20,7 +20,6 @@ import com.GuardianAngel.FileSystemModule.FileReader;
 public class enterPwdPopup extends Activity {
     Button submit;
     EditText password;
-    FileReader file;
     PasswordHash hasher= new PasswordHash();
     AppDatabase db ;
 
@@ -30,7 +29,6 @@ public class enterPwdPopup extends Activity {
         db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").build();
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        file=new FileReader(this);
         submit=findViewById(R.id.log_btn4);
         password=findViewById(R.id.pwd_box);
         submit.setOnClickListener(new View.OnClickListener() {

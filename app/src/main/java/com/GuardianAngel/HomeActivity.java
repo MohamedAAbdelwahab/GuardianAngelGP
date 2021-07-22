@@ -27,8 +27,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.room.Room;
-import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 import com.GuardianAngel.FileSystemModule.Global;
 import java.io.IOException;
@@ -52,8 +50,7 @@ public class HomeActivity extends Activity {
     public static  Date todDate;
     private ImageView face;
     private TextView faceText;
-    public static String IP="192.168.1.104";
-    AppDatabase db;
+    public static String IP="192.168.1.9";
     static Handler timerHandler = new Handler();
     static Runnable runnable = new Runnable() {
         @Override
@@ -99,9 +96,6 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         reader=new FileReader(this);
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
-
         timer1TextView = findViewById(R.id.textView19);
         timer2TextView = findViewById(R.id.textView20);
         ProtectiveDoneAllTime=findViewById(R.id.textView18);
@@ -300,7 +294,6 @@ public class HomeActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState (Bundle savedInstanceState){
-        timerHandler.removeCallbacks(runnable);
         SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
         if(simpleSwitch.isChecked()) {
             editor.putLong("startTime", startDate.getTime());
@@ -309,6 +302,11 @@ public class HomeActivity extends Activity {
         }
         writeTime();
         editor.apply();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        timerHandler.removeCallbacks(runnable);
     }
     public void readTime(){
         Pair<Long,Long> time = reader.readTime();
