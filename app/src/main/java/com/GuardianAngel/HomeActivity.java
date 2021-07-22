@@ -308,9 +308,9 @@ public class HomeActivity extends Activity {
     public void onPause() {
         super.onPause();
     }
+
     @Override
-    public void onDestroy(){
-        super.onDestroy();
+    protected void onSaveInstanceState (Bundle savedInstanceState){
         timerHandler.removeCallbacks(runnable);
         SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
         if(simpleSwitch.isChecked()) {
@@ -338,6 +338,10 @@ public class HomeActivity extends Activity {
         if(time.first==0){
             todDate = new Date(0);
             previousTime = 0;
+            SharedPreferences.Editor editor = getSharedPreferences("YOUR_PREFERENCE_NAME", Context.MODE_PRIVATE).edit();
+            //editor.putLong("startTime", startDate.getTime());
+            editor.putLong("previousTime", 0);
+            editor.apply();
         }
     }
     public void writeTime(){
