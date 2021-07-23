@@ -19,11 +19,6 @@
             app:actionLayout="@layout/switch_item" />
     </group>
     <item
-        android:id="@+id/lng"
-        android:title="Language"
-        android:visible="true" />
-
-    <item
         android:id="@+id/ChangeServerIp"
         android:title="Change Server Ip"
         android:visible="true" />

@@ -177,8 +177,6 @@ public class HomeActivity extends Activity {
                                     startActivityForResult(entrpwd,200);
                                 }
                                 break;
-                            case "Language":
-                                break;
                             case "Change Server Ip":
                                 Intent Changeip=new Intent(getApplicationContext(),ChangeIpActivity.class);
                                 startActivity(Changeip);
