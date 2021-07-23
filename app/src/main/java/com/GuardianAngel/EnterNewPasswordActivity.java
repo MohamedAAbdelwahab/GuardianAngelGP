@@ -18,17 +18,15 @@ public class EnterNewPasswordActivity extends Activity {
     EditText newPassword;
     EditText ConfirmPassword;
     Button submit;
-    PasswordHash hasher=new PasswordHash();
-    AppDatabase db;
+    UserDataHandler userDataHandler;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.restore_password);
+        userDataHandler=new UserDataHandler(getApplicationContext());
         newPassword=findViewById(R.id.Password_box7);
         ConfirmPassword=findViewById(R.id.Password_box8);
         submit=findViewById(R.id.submit5);
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,7 +64,7 @@ public class EnterNewPasswordActivity extends Activity {
                             });
                         }
                         else {
-                            db.userDao().updatePassword(hasher.hashPassword(newPassword.getText().toString()),0);
+                            userDataHandler.updatePassword((newPassword.getText().toString()),0);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

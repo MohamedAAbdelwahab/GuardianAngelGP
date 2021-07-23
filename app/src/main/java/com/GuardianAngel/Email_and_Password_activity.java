@@ -24,15 +24,12 @@ public class Email_and_Password_activity extends Activity {
     EditText EditTextpassword;
     EditText EditTextconfirm;
     Button registerbtn;
-    PasswordHash hasher=new PasswordHash();
-    AppDatabase db ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        db= Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+
         SharedPreferences pref = this.getSharedPreferences("Sample", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         if (pref.getInt("ATTEMPTs", 0) == 0)
@@ -91,17 +88,11 @@ public class Email_and_Password_activity extends Activity {
                             }else {
                                 String Password=EditTextpassword.getText().toString();
                                 String Email=EditTextemail.getText().toString();
-                                final User user=new User();
-                                user.Email=Email;
-                                user.Password=hasher.hashPassword(Password);
-                                Thread thread=new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        db.userDao().insertAll(user);
+                                UserDataHandler userHandler=new UserDataHandler(getApplicationContext());
+                                userHandler.register(Email,Password);
 
-                                    }
-                                });
-                                thread.start();
+
+
                                 Global.email = EditTextemail.getText().toString();
                                 getSharedPreferences("PREFERENCE", MODE_PRIVATE).edit()
                                         .putBoolean("isFirstRun", false).apply();

@@ -1,7 +1,5 @@
 package com.GuardianAngel;
-
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,10 +7,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import androidx.room.Room;
-
-import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.FileReader;
 
 public class changePwdPopup extends Activity {
@@ -21,13 +15,11 @@ public class changePwdPopup extends Activity {
     EditText newPassword;
     EditText newPasswordConf;
     FileReader file;
-    PasswordHash hasher=new PasswordHash();
-    AppDatabase db;
+    UserDataHandler userDataHandler;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_password);
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+        userDataHandler=new UserDataHandler(getApplicationContext());
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         newPassword=findViewById(R.id.password_box4);
         newPasswordConf=findViewById(R.id.password_box6);
@@ -44,7 +36,7 @@ public class changePwdPopup extends Activity {
                 Thread thread=new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        String actualpassword =db.userDao().GetUserPassword();
+                        String actualpassword =userDataHandler.getUserPassword();
 
                         if(TextUtils.isEmpty(newPassword.getText()) || TextUtils.isEmpty(newPasswordConf.getText()) || TextUtils.isEmpty(password.getText()) )
                         {
@@ -57,7 +49,7 @@ public class changePwdPopup extends Activity {
                             });
                             finish();
 
-                        }else if(!hasher.checkPassword(pass,actualpassword)){
+                        }else if(!userDataHandler.CheckPassword(pass,actualpassword)){
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -95,7 +87,7 @@ public class changePwdPopup extends Activity {
                             });
                             finish();
                         }else {
-                            db.userDao().updatePassword(hasher.hashPassword(newpass),0);
+                            userDataHandler.updatePassword((newpass),0);
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

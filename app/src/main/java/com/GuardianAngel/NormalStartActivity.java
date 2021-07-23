@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -39,24 +40,21 @@ import okhttp3.Response;
 public class NormalStartActivity extends Activity {
     Button submit;
     EditText password;
-    PasswordHash hasher=new PasswordHash();
-    AppDatabase db;
     TextView forgetPassword;
-
+    UserDataHandler userDataHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.normal_start_activity);
-        final String[] ActualPassword = {""};
 
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+        final String[] ActualPassword = {""};
+        userDataHandler=new UserDataHandler(getApplicationContext());
 
         Thread thread2=new Thread(new Runnable() {
             @Override
             public void run() {
-                Global.email = db.userDao().GetUserEmail();
-                ActualPassword[0] =db.userDao().GetUserPassword();
+                Global.email = userDataHandler.getUserEmail();
+                ActualPassword[0] =userDataHandler.getUserPassword();
 
             }
         });
@@ -111,8 +109,8 @@ public class NormalStartActivity extends Activity {
                 submit.setEnabled(false);
                 password.setEnabled(false);
                 final String ExpectedPassword=password.getText().toString();
-
-                        if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
+                Log.i("Actual",ActualPassword[0]);
+                        if(userDataHandler.CheckPassword(ExpectedPassword,ActualPassword[0]))
                         {
                             Intent i = new Intent(getApplicationContext(), HomeActivity.class); ///// edit
                             startActivity(i);

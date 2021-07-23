@@ -20,14 +20,12 @@ import com.GuardianAngel.FileSystemModule.FileReader;
 public class enterPwdPopup extends Activity {
     Button submit;
     EditText password;
-    PasswordHash hasher= new PasswordHash();
-    AppDatabase db ;
+    UserDataHandler userDataHandler;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_pwd);
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+        userDataHandler=new UserDataHandler(getApplicationContext());
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         submit=findViewById(R.id.log_btn4);
         password=findViewById(R.id.pwd_box);
@@ -39,8 +37,8 @@ public class enterPwdPopup extends Activity {
                 Thread thread=new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        ActualPassword[0] =db.userDao().GetUserPassword();
-                        if(hasher.checkPassword(ExpectedPassword, ActualPassword[0]))
+                        ActualPassword[0] =userDataHandler.getUserPassword();
+                        if(userDataHandler.CheckPassword(ExpectedPassword, ActualPassword[0]))
                         {
                             Intent i = new Intent(getApplicationContext(),enterPwdPopup.class);
                             i.putExtra("SUCCESS",100);

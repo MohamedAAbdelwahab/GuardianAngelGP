@@ -1,6 +1,5 @@
 package com.GuardianAngel;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -9,8 +8,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-import androidx.room.Room;
-import com.GuardianAngel.FileSystemModule.AppDatabase;
 import com.GuardianAngel.FileSystemModule.Global;
 
 public class changeEmailPopup extends Activity {
@@ -18,14 +15,12 @@ public class changeEmailPopup extends Activity {
     EditText password;
     EditText email;
     EditText newEmail;
-    PasswordHash hasher= new PasswordHash();
-    AppDatabase db;
+    UserDataHandler userDataHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_email);
-        db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "database-name").build();
+        userDataHandler=new UserDataHandler(getApplicationContext());
         getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         email=findViewById(R.id.email_box);
         newEmail=findViewById(R.id.email_box2);
@@ -40,8 +35,8 @@ public class changeEmailPopup extends Activity {
                     Thread thread=new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            final String actualmail = db.userDao().GetUserEmail();
-                            final String actualpassword = db.userDao().GetUserPassword();
+                            final String actualmail = userDataHandler.getUserEmail();
+                            final String actualpassword = userDataHandler.getUserPassword();
 
                             if(TextUtils.isEmpty(email.getText()) || TextUtils.isEmpty(newEmail.getText()) || TextUtils.isEmpty(password.getText()) )
                             {
@@ -63,7 +58,7 @@ public class changeEmailPopup extends Activity {
                                     }
                                 });
                                 finish();
-                            }else if(!hasher.checkPassword(pass,actualpassword)) {
+                            }else if(!userDataHandler.CheckPassword(pass,actualpassword)) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -91,7 +86,7 @@ public class changeEmailPopup extends Activity {
                                 });
                                 finish();
                             }else {
-                                db.userDao().updateEmail(newmail,0);
+                                userDataHandler.updateEmail(newmail,0);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
